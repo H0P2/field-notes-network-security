@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>독립 재계산 기록 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="stylesheet" href="../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="README.html">기록 목록</a><a class="back-link" href="../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/independent-audit.md</span></p>
+    <h1 class="reader-title">독립 재계산 기록</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><p>FlowLens/AuthSentry 분석기 코드를 import하지 않고 Python 표준 라이브러리로 입력 표본을 다시 읽었습니다.</p>
+<h2>FlowLens</h2>
+<ul><li>흐름 15,313건 / 잘못된 행 0건 / 전송량 157,353,488 bytes</li><li>라벨 계열: <code>{&quot;Background&quot;: 15098, &quot;From-Botnet&quot;: 128, &quot;From-Normal&quot;: 86, &quot;To-Normal&quot;: 1}</code></li><li>미상 목적지 포트: 27건. 포트 <code>-</code>는 원본에 존재하며 FlowLens 규칙상 허용된 미상 값입니다.</li><li>상위 출발지 별칭: net-01 / 6,148 flows / 58,696,409 bytes</li><li>입력 SHA-256: <code>5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a</code></li></ul>
+<h2>AuthSentry</h2>
+<ul><li>세션 집계 58,334건 / 잘못된 행 0건</li><li>실패 53,602 / 성공 4,645 / source 6,511</li><li>first_seen: 2025-06-27 - 2025-08-14 / 서로 다른 날짜 13개</li><li>username/password 키가 포함된 레코드: 0건</li><li>입력 SHA-256: <code>6621c0f4c095fbd558c2366915d82fe15fb4888eebe33f854666a9e95ffc0df9</code></li></ul>
+<h2>교차 확인</h2>
+<p>PASS - FlowLens: 유효 흐름 수 15,313 PASS - FlowLens: 잘못된 행 0 PASS - FlowLens: 미상 목적지 포트 27개를 유효 행으로 보존 PASS - FlowLens: 전송량 합계 157,353,488 bytes PASS - FlowLens: 제공자 라벨 계열 수 일치 PASS - FlowLens: 상위 출발지 별칭·흐름·bytes 일치 PASS - FlowLens: 입력 SHA-256이 보고서와 일치 PASS - FlowLens: 원본 구간 SHA-256 재계산 일치 PASS - AuthSentry: 세션 집계 레코드 58,334 PASS - AuthSentry: 잘못된 JSONL 행 0 PASS - AuthSentry: 실패/성공 로그인 합계 일치 PASS - AuthSentry: source 식별자 6,511개 PASS - AuthSentry: first_seen 날짜 범위/고유 날짜 수 일치 PASS - AuthSentry: username/password 키가 모든 표본 레코드에서 부재 PASS - AuthSentry: 분석 입력 SHA-256이 보고서와 일치 PASS - AuthSentry: 압축 원본 구간 SHA-256 재계산 일치 PASS - PublishGate manifest/report 지문 일치: flowlens-ctu13-mid-slice PASS - PublishGate manifest/report 지문 일치: authsentry-cowrie-prefix</p>
+<p>초기 빠른 대조는 <code>Dport</code>의 <code>-</code>를 잘못된 값으로 처리해 27행을 제외했습니다. 실제 parser 계약을 확인해 미상 포트를 유효하게 보존한 독립 재계산에서는 전체 수치가 보고서와 일치했습니다. 분석 결과 파일은 이 교차 확인 과정에서 바꾸지 않았습니다.</p>
+<p>최종 판정: PASS - 보고서 수치와 SHA-256이 독립 재계산과 일치</p>
+<p>제한: 두 분석 자료는 선택된 부분 구간입니다. 일치 검사는 입력/보고서 간 재현성과 값 확인이지 원본 데이터셋 전체에 대한 통계적 대표성을 뜻하지 않습니다.</p></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
