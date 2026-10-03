@@ -1,0 +1,124 @@
+/* Cinematic artwork sits on separate depth planes; interface text stays crisp. */
+.entrance-page{background:#070b10;color:#edf0f3;-webkit-font-smoothing:antialiased}
+.entrance-page .shell{width:min(1344px,calc(100% - 112px))}
+.entrance-page .site-header{position:sticky;top:0;z-index:30;height:84px;background:#070b10ed;backdrop-filter:blur(16px);border-bottom:1px solid #ffffff0d}
+.entrance-page .wordmark{font-size:13px;letter-spacing:.08em;gap:14px}
+.entrance-page .wordmark-mark{font:600 13px/1 ui-monospace,Consolas,monospace;border:1px solid #52717d;width:36px;height:36px;border-radius:3px;color:#dae8ef;letter-spacing:-.07em}
+.entrance-page .wordmark-index{font-size:9px;color:#93a0ab;letter-spacing:.1em;margin-left:20px}
+.entrance-page .site-header nav{gap:30px}
+.entrance-page .site-header nav a{font-size:10px;letter-spacing:.11em;font-weight:500;color:#b4bdc7}
+.entrance-page .site-header nav a:hover{color:#fff}
+.entrance-page .motion-toggle{background:transparent;border-color:#35424d;color:#b9c7d0;padding:8px 12px;border-radius:3px;font-size:10px;min-height:36px}
+.entrance-page .motion-toggle[aria-pressed=true]{color:#c0f0f7;border-color:#7ab3be}
+.journey{position:relative;height:245svh;--journey-progress:0%;--pose-idle:1;--pose-invite:0;--pose-lead:0;--figure-scale:1;--figure-x:0px;--figure-y:0px;--figure-turn:0deg;--scene-drift:0px}
+.journey-stage{position:sticky;top:var(--entry-header-height,84px);height:calc(100svh - var(--entry-header-height,84px));min-height:610px;overflow:hidden;isolation:isolate;background:#070b10}
+.scene-atmosphere{position:absolute;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.atmosphere-light{position:absolute;right:-10%;top:-35%;width:78%;height:130%;background:radial-gradient(ellipse,#1c35454d 0,#10213038 38%,transparent 66%);transform:translateY(var(--scene-drift))}
+.atmosphere-orbit{position:absolute;right:2%;top:3%;width:42vw;max-width:750px;aspect-ratio:1;border:1px solid #a4c4d313;border-radius:50%;transform:translateY(var(--scene-drift)) rotateX(15deg) rotateY(-24deg)}
+.orbit-two{right:4%;top:12%;width:37vw;border-color:#aeced009}
+.horizon-line{position:absolute;bottom:21%;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0,#577c8e1a 55%,#93bed63a 82%,transparent)}
+.journey-layout{position:relative;height:100%;display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:20px;padding-bottom:72px}
+.journey-copy{z-index:5;position:relative;padding:38px 0 30px}
+.journey-copy .eyebrow{color:#aecbd8;font:500 10px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.18em;margin-bottom:28px}
+.journey-copy .signal-dot{width:5px;height:5px;background:#afdbe8;box-shadow:0 0 10px #80c8ed55;margin-right:9px}
+.journey-copy h1{font-size:clamp(43px,4.55vw,70px);line-height:1.2;letter-spacing:-.063em;font-weight:650;margin-bottom:25px;color:#f1f3f5;word-break:keep-all}
+.journey-copy h1 span{color:#a6cbd9}
+.journey-description{font-size:15px;line-height:1.95;letter-spacing:-.02em;color:#aebbc7;margin-bottom:30px;word-break:keep-all}
+.journey-actions{display:flex;align-items:center;gap:26px}
+.journey-enter{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;padding:14px 19px;border:1px solid #d1e0e8;border-radius:3px;background:#d8e7ee;color:#0b1823;text-decoration:none;font-size:12px;font-weight:650;transition:background .2s,transform .2s}
+.journey-enter:hover{background:#fff;color:#0b1823;transform:translateY(-2px)}
+.journey-enter>span{font-size:19px;font-weight:400}
+.journey-evidence{color:#b4c1cd;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:18px}
+.journey-evidence>span{color:#7b96a9}
+.journey-facts{display:flex;align-items:flex-start;gap:38px;margin-top:38px}
+.journey-facts>a,.journey-facts>div{display:grid;gap:9px;color:#b2c0cc;text-decoration:none}
+.journey-facts strong{font:400 25px/1 ui-monospace,Consolas,monospace;letter-spacing:-.045em;color:#e0e8ee}
+.journey-facts span{font-size:10px;color:#8fa1b0}
+.journey-audience{font-size:10px;line-height:1.8;color:#8e9eac;margin:25px 0 0}
+.guide-scene{position:relative;height:100%;min-width:0;perspective:1100px;transform-style:preserve-3d;align-self:stretch}
+.guide-halo{position:absolute;inset:10% -18% 0;background:radial-gradient(ellipse at 50% 35%,#3f647421,transparent 63%);transform:translateY(var(--scene-drift));pointer-events:none}
+.guide-art{position:absolute;left:50%;top:4%;width:clamp(360px,32vw,490px);aspect-ratio:1/2;transform-origin:50% 30%;transform:translateX(-50%) translate3d(var(--figure-x),var(--figure-y),0) rotateY(var(--figure-turn)) scale(var(--figure-scale));transform-style:preserve-3d;mask-image:linear-gradient(#000 0,#000 63%,transparent 87%);will-change:transform}
+.guide-pose{position:absolute;inset:0;background-image:url('./assets/guide-cinematic-atlas.png');background-size:300% 100%;background-repeat:no-repeat;backface-visibility:hidden;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.pose-idle{background-position:0% 50%;opacity:var(--pose-idle)}
+.pose-invite{background-position:50% 50%;opacity:var(--pose-invite)}
+.pose-lead{background-position:100% 50%;opacity:var(--pose-lead)}
+.guide-caption-block{position:absolute;bottom:3%;left:10%;right:0;display:flex;align-items:center;gap:15px;z-index:4;color:#d0dde5;font-size:12px}
+.caption-line{height:1px;width:30px;background:#809fac}
+.guide-caption-index{margin-left:auto;color:#6f8596;font:9px ui-monospace,Consolas,monospace;letter-spacing:.15em}
+.journey-status{position:absolute;bottom:25px;left:0;right:0;display:flex;align-items:center;gap:35px;color:#9dafbe}
+.journey-status-copy{display:flex;align-items:center;gap:24px;white-space:nowrap}
+.journey-step{font:9px ui-monospace,Consolas,monospace;letter-spacing:.1em;color:#bbcbd7}
+.journey-story{font-size:11px;color:#8e9eac}
+.journey-track{height:1px;flex:1;background:#29333d}.journey-track i{width:var(--journey-progress);height:1px;background:#a3cddc;display:block}
+.journey-scroll{font:8px ui-monospace,Consolas,monospace;letter-spacing:.1em;white-space:nowrap}.journey-scroll span{font-size:18px;margin-left:22px;color:#c7d9e1}
+.destinations{padding-block:108px 45px;scroll-margin-top:90px}
+.destination-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:45px;margin-bottom:48px}
+.destination-heading .eyebrow{font:9px ui-monospace,Consolas,monospace;letter-spacing:.14em;color:#8eacbd;margin-bottom:20px}
+.destination-heading h2{font-size:clamp(34px,3.6vw,54px);font-weight:500;letter-spacing:-.055em;line-height:1.3;color:#e8eef2}
+.destination-heading h2 span{color:#8295a5}
+.destination-heading>p{font-size:13px;line-height:1.95;color:#94a5b4;margin:0 0 5px}
+.destination-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.destination-card{position:relative;display:block;overflow:hidden;min-width:0;padding:30px 32px 34px;border:1px solid #27333e;border-radius:5px;background:#0d151e;color:#eaf0f4;text-decoration:none;transition:background .3s,border-color .3s,transform .3s}
+.destination-card:hover{border-color:#526c7c;background:#111e29;transform:translateY(-5px)}
+.door-top{display:flex;align-items:center;justify-content:space-between;gap:20px;color:#93a9b8;font:9px ui-monospace,Consolas,monospace;letter-spacing:.08em}
+.door-arrow{font-size:23px;color:#c7dae6;font-family:system-ui}
+.dashboard-art,.about-art{height:190px;position:relative;overflow:hidden;margin-block:10px 23px}
+.visual-chart{position:absolute;inset:30px 5% 30px;display:flex;align-items:flex-end;gap:9px;transform:perspective(800px) rotateY(-15deg) rotateX(12deg)}
+.visual-chart>span{flex:1;height:40%;background:linear-gradient(#9bcad999,#1b374728);border-top:1px solid #b6dde4}
+.visual-chart>span:nth-child(3n){height:70%}.visual-chart>span:nth-child(4n){height:90%}.visual-chart>span:nth-child(2n){height:55%}.visual-chart>span:nth-child(7){height:100%}
+.visual-caption{position:absolute;bottom:0;right:0;color:#657d8d;font:8px ui-monospace,Consolas,monospace;letter-spacing:.11em}
+.about-door{background:radial-gradient(ellipse at 70% 30%,#1a2636,#0d151e 65%)}
+.about-monogram{position:absolute;left:15%;top:-25px;color:#a8bece;font:italic 180px/.98 Georgia,serif;letter-spacing:-.09em;transform:rotate(-8deg);opacity:.8}
+.about-line{position:absolute;inset:25px 10% 15px;border:1px solid #546d8233;border-radius:50%;transform:rotate(-25deg)}
+.door-text h3{font:400 clamp(28px,2.8vw,43px)/1.2 ui-monospace,Consolas,monospace;letter-spacing:-.04em;margin-bottom:18px;color:#e2eaf0}
+.door-text p{font-size:15px;color:#c8d4de;margin:0 0 10px;letter-spacing:-.025em}
+.door-text>span{font-size:11px;color:#8399aa}
+.destination-note{display:flex;justify-content:space-between;gap:24px;align-items:center;padding-top:34px;margin-top:28px;border-top:1px solid #232d38;color:#91a3b3;font-size:11px}
+.destination-note p{margin:0;line-height:1.85}.destination-note a{color:#b8cbd7;text-decoration:none;font-size:11px;white-space:nowrap}.destination-note a>span{margin-left:16px}
+.entrance-page .site-footer{border-top:1px solid #202b35}
+.entrance-page .footer-inner{padding-block:27px;color:#7e91a1;font-size:10px;line-height:1.8}
+.entrance-page .footer-inner a{font-size:9px;letter-spacing:.08em;color:#a4b9c6}.footer-dot{margin-inline:12px;color:#9cb4c0}
+@media(min-width:1700px){.guide-art{width:500px;top:9%}.journey-layout{gap:50px}.journey-description{font-size:17px}.journey-facts{margin-top:48px}.journey-copy h1{font-size:72px}.guide-caption-block{bottom:7%}}
+@media(max-width:1100px){.entrance-page .shell{width:calc(100% - 72px)}.entrance-page .wordmark-index{display:none}.journey-layout{grid-template-columns:1.1fr .9fr;gap:0}.journey-copy h1{font-size:44px}.journey-copy .eyebrow{font-size:9px}.journey-description{font-size:13px}.journey-actions{gap:20px}.journey-enter{font-size:11px;gap:20px;padding:12px 15px}.journey-evidence{font-size:11px;gap:10px}.guide-art{width:360px;top:8%}.guide-caption-block{left:15%}.journey-status-copy{gap:18px}.journey-status{gap:24px}.journey-story{font-size:10px}}
+@media(max-width:760px){
+  .entrance-page .shell{width:calc(100% - 40px)}
+  .entrance-page .site-header{height:auto;min-height:70px}
+  .entrance-page .header-inner{padding-block:16px;flex-wrap:wrap;gap:15px}
+  .entrance-page .wordmark{font-size:11px;gap:9px}
+  .entrance-page .wordmark-mark{width:29px;height:29px;font-size:11px}
+  .entrance-page .site-header nav{gap:19px}
+  .entrance-page .site-header nav a{font-size:9px;letter-spacing:.08em}
+  .entrance-page .motion-toggle{font-size:9px;padding:6px 9px;min-height:30px}
+  .journey{height:auto}.journey-stage{position:relative;top:0;height:800px;min-height:0}
+  .journey-layout{display:block;padding-top:38px;padding-bottom:75px}.journey-copy{padding:0}
+  .journey-copy .eyebrow{font-size:9px;margin-bottom:19px}
+  .journey-copy h1{font-size:44px;line-height:1.19;margin-bottom:20px}
+  .journey-description{font-size:13px;line-height:1.9;margin-bottom:22px}
+  .journey-actions{gap:22px}
+  .journey-facts{position:absolute;top:390px;left:0;flex-direction:column;gap:27px;margin:0;z-index:5}
+  .journey-facts strong{font-size:24px}.journey-facts span{font-size:10px;max-width:130px;line-height:1.7}
+  .journey-audience{max-width:240px;font-size:10px;margin-top:17px}
+  .guide-scene{position:absolute;bottom:80px;right:-8px;width:66%;height:410px;pointer-events:none}
+  .guide-art{width:290px;top:0;left:52%;mask-image:linear-gradient(#000 0,#000 52%,transparent 76%)}
+  .guide-halo{inset:-10% -10% 0}
+  .guide-caption-block{left:17%;bottom:0;gap:10px;font-size:11px;white-space:nowrap}
+  .guide-caption-index{display:none}.caption-line{width:18px}
+  .atmosphere-light{top:15%;width:120%;right:-40%;height:90%}
+  .atmosphere-orbit{top:40%;width:80vw;right:-8%}.orbit-two{top:45%;width:72vw;right:-3%}
+  .journey-status{bottom:23px;gap:15px}.journey-status-copy{display:grid;gap:7px}.journey-step{font-size:8px}.journey-story{font-size:10px}.journey-scroll{display:none}
+  .destinations{padding-block:65px 35px;scroll-margin-top:115px}
+  .destination-heading{display:block;margin-bottom:30px}.destination-heading h2{font-size:37px}.destination-heading>p{margin-top:22px;font-size:12px}.destination-heading .eyebrow{font-size:8px;margin-bottom:18px}
+  .destination-grid{grid-template-columns:1fr;gap:18px}.destination-card{padding:24px 25px 29px}.door-top{font-size:8px}.dashboard-art,.about-art{height:175px}.door-text h3{font-size:32px}.door-text p{font-size:14px}.door-text>span{font-size:10px}
+  .destination-note{display:block;margin-top:22px;padding-top:24px;font-size:10px}.destination-note a{display:inline-block;margin-top:15px;font-size:11px}
+  .entrance-page .footer-inner{font-size:9px;align-items:flex-start}.footer-dot{display:none}.entrance-page .footer-inner>span{max-width:210px}
+}
+@media(min-width:500px) and (max-width:760px){.guide-scene{width:58%;right:0}.guide-art{width:320px}.journey-copy h1{font-size:49px}}
+@media(max-width:400px){.entrance-page .header-inner{justify-content:space-between}.entrance-page .site-header nav{justify-content:space-between;width:100%;gap:10px}.journey-copy h1{font-size:37px}.journey-description{font-size:12px}.journey-stage{min-height:790px}.journey-actions{gap:16px}.journey-enter{font-size:11px}.journey-evidence{font-size:10px}.guide-art{width:270px}.guide-scene{bottom:80px;right:-13px;width:69%;height:400px}.journey-facts{top:380px}.journey-facts span{max-width:90px}.journey-audience{max-width:280px}}
+@media(max-height:720px) and (min-width:761px){.journey-stage{min-height:600px}.journey-copy h1{font-size:44px}.journey-copy .eyebrow{margin-bottom:22px}.journey-description{font-size:13px;margin-bottom:20px}.journey-facts{margin-top:25px}.journey-audience{margin-top:20px}.guide-art{width:360px;top:0}}
+html:not([data-motion=on]) .journey{height:auto}html:not([data-motion=on]) .journey-stage{position:relative;top:0}html:not([data-motion=on]) .journey-track{display:none}html[data-motion=off] .journey-enter,html[data-motion=off] .destination-card{transition:none}html[data-motion=off] .journey-enter:hover,html[data-motion=off] .destination-card:hover{transform:none}html[data-motion=off] .guide-art{will-change:auto}
+@media(prefers-reduced-motion:reduce){.journey{height:auto}.journey-stage{position:relative;top:0}.destination-card,.journey-enter{transition:none}.destination-card:hover,.journey-enter:hover{transform:none}.guide-art{will-change:auto}.journey-track{display:none}}
+@media print{.journey{height:auto!important}.journey-stage{position:relative;height:auto;min-height:0;top:0}.journey-layout{display:block;padding:20px 0}.guide-scene,.scene-atmosphere,.journey-status{display:none}.journey-facts{position:relative;top:auto;flex-direction:row;margin-top:25px}.destination-grid{display:block}.destination-card{display:block;margin-bottom:20px;padding:20px}.dashboard-art,.about-art{display:none}}
+/* Finish each pose dissolve even if the user stops mid-scroll. */
+.guide-pose{transition:opacity .42s ease}
+html[data-motion=off] .guide-pose{transition:none}
+@media(prefers-reduced-motion:reduce){.guide-pose{transition:none}}

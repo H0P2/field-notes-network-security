@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>FIELD NOTES — Network &amp; Security Lab — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="evidence/projects/README.html">기록 목록</a><a class="back-link" href="index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">README.md</span></p>
+    <h1 class="reader-title">FIELD NOTES — Network &amp; Security Lab</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><p>2026-10-02 개편한 개인 소개 사이트입니다. 실제 자료를 다룬 프로젝트 5개, 작업 기준, 공개 범위와 근거를 보여줍니다. ASA 장비 실습은 보류 상태이며 성과로 집계하지 않습니다. 구현·분석은 AI가 수행했고, 사용자에게 확인되지 않은 개인 이력은 만들지 않았습니다.</p>
+<h2>로컬 실행</h2>
+<p>Python 3.10 이상에서 이 폴더를 기준으로 실행합니다.</p>
+<pre class="code-block"><code class="language-powershell">python build_evidence_pages.py
+python -m http.server 8765 --bind 127.0.0.1</code></pre>
+<p>브라우저에서 <code>http://127.0.0.1:8765/</code>를 엽니다. 로컬 미리보기이며 제출용 공개 URL은 아닙니다. 보고서나 코드를 바꾸면 HTML 생성 명령을 다시 실행합니다.</p>
+<h2>디자인과 동작</h2>
+<p>참고 이미지의 청록색 서버실 조명, 천장 배선, 여러 모니터가 있는 작업 공간을 CSS 3D 평면과 SVG로 구성했습니다. 연구실은 공간 연출이며 실시간 관제 화면이 아닙니다. 모니터의 수치는 검토된 오프라인 보고서에서 가져왔습니다.</p>
+<p>스크롤하면 연구실 시점의 각도와 깊이가 바뀝니다. 상단의 움직임 줄이기 버튼, 운영체제의 prefers-reduced-motion, 모바일 고정 장면을 지원합니다. 스크롤 이벤트가 있을 때만 화면을 갱신하며 외부 3D 라이브러리나 CDN은 사용하지 않습니다.</p>
+<p>결과 이미지 6개는 페이지 안에서 확대됩니다. Esc, 닫기 버튼, 배경 클릭으로 닫으며 원래 링크로 초점이 복귀합니다. JavaScript가 없으면 원본 이미지 링크와 근거 링크를 그대로 사용할 수 있습니다.</p>
+<h2>프로젝트 재검토</h2>
+<p><a href="evidence/projects/review-2026-10-02.html">재검토 결과</a>에는 실제 입력 재실행, AuthSentry·PublishGate의 입력 검증 결함 수정 전후, 한계를 기록했습니다. <a href="evidence/projects/05-samplescope/samplescope-report.html">SampleScope</a>는 보관된 CTU-13 세 구간 총 46,023행을 비교합니다. 시작 구간의 비 IP 주소 1행은 FlowLens 분석 범위에서 제외됩니다.</p>
+<h2>이번 브라우저 점검</h2>
+<ul><li>1366×768, 1920×1080의 첫 화면에 소개·활동·근거 링크와 결과 요약을 확인했습니다. 두 화면과 모바일 390px에서 문서 가로 넘침은 0px입니다.</li><li>스크롤 전후 3D 각도와 깊이 값의 변화, 이미지 6개 로드·확대·Esc 닫기·초점 복귀를 확인했습니다.</li><li>이미지 링크 Enter 열기, 닫기 버튼 Space, 움직임 버튼 Space·Enter 전환을 확인했습니다.</li><li>이 점검에서 홈페이지 콘솔 오류는 0건입니다. 외부 원본 사이트의 현재 무로그인 접근 여부와 최종 공개 배포는 아직 확인하지 않았습니다.</li></ul>
+<h2>이번 화면 작업 중 수정한 실제 문제</h2>
+<ol><li>3D 천장과 배선이 장면 밖으로 넘어와 소개 문구에 겹쳤습니다. 장면 영역을 자르고 불필요하게 가리는 천장 평면을 제거했습니다.</li><li>화면 크기별 배율이 위치 변환과 결합되어 모니터 일부가 잘렸습니다. 배율을 중앙 정렬 뒤에 적용하도록 변환 순서를 고쳤습니다.</li><li>SampleScope를 추가한 뒤 SecretFence 카드와 PNG에 이전 파일 수가 남았습니다. 현재 패키지에서 다시 스캔하고 같은 검사 결과로 문구·PNG·보고서를 갱신했습니다.</li></ol>
+<p>이전 버전에서는 Markdown/Python 원문 링크의 브라우저 차단, HTML 제목 중복, 파비콘 404를 수정했습니다. 보고서와 코드는 HTML 읽기 화면으로 연결합니다.</p>
+<h2>공개 범위와 검사 제한</h2>
+<p>공개 후보: 사용자가 선택한 작업 기준, 집계값·표본 한계, 코드와 보고서. 제외: 실명·사진·연락처, 기관·정확한 위치, 원시 식별자와 비밀값. 원본 표본은 배포 폴더 밖에 있습니다.</p>
+<p><a href="security-scan.html">최신 SecretFence 검사</a>는 지정된 텍스트 패턴과 제외 범위를 표시합니다. PNG는 바이너리라 텍스트 검사에서 제외되며, 현재 폴더는 Git 저장소가 아니므로 Git 이력은 미검사입니다. 공개 저장소를 만들면 그 최종 이력도 별도로 확인해야 합니다.</p>
+<p>공개 결과 주소와 공개 소스 저장소 주소는 아직 없습니다. 최종 공개 범위·소개 문안과 공개 위치를 확정한 뒤 배포합니다.</p>
+<h2>짧은 확인법</h2>
+<p>위치: 첫 페이지의 실험 섹션으로 갑니다.</p>
+<p>행동: 결과 이미지 클릭 → Esc → 같은 링크에서 Enter를 누릅니다.</p>
+<p>통과: 확대창이 닫히며 링크로 초점이 돌아오고 Enter로 다시 열립니다.</p>
+<p>실패: 이미지 파일로 페이지가 이동하거나, Esc로 닫히지 않거나, 초점이 사라집니다.</p></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
