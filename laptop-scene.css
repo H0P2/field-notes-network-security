@@ -80,10 +80,10 @@
 .laptop-screen-surface .screen-portal::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(125deg,#a5d9f208,transparent 52%);box-shadow:inset 0 0 35px #020b1190}
 .scene-shade{position:absolute;inset:0;pointer-events:none;opacity:var(--intro-opacity);background:linear-gradient(90deg,#070b10 0,#070b10ef 26%,#070b10a8 39%,#070b1000 60%)}
 .laptop-journey .journey-layout{pointer-events:none;z-index:4;grid-template-columns:1fr 1fr}
-.laptop-journey .journey-copy{opacity:var(--intro-opacity);transform:translateY(var(--intro-y,0px));transition:visibility .1s;max-width:610px}
+.laptop-journey .journey-copy{opacity:var(--intro-opacity);transform:translateY(var(--intro-y,0px));transition:visibility .1s;max-width:610px;background:#070b10f5;border-radius:12px;box-shadow:0 0 30px 16px #070b10b8}
 .laptop-journey .journey-copy a{pointer-events:auto}
 .laptop-journey .journey-copy[data-hidden=true] a{pointer-events:none}
-.laptop-journey .journey-status{z-index:8;pointer-events:none}
+.laptop-journey .journey-status{z-index:8;pointer-events:none;background:#070b10f5;border-radius:6px}
 .screen-arrival{position:absolute;inset:0;z-index:7;opacity:var(--arrival-opacity);visibility:hidden;overflow:auto;background:#071116}
 .screen-arrival[data-visible=true]{visibility:visible}
 .screen-arrival[inert]{pointer-events:none}
