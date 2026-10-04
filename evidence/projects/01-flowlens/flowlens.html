@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 source / python 보기">
+  <title>FlowLens 코드 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>SOURCE / PYTHON <span class="reader-path">evidence/projects/01-flowlens/flowlens.py</span></p>
+    <h1 class="reader-title">FlowLens 코드</h1>
+    <p class="reader-deck">원본 파일을 이 페이지 안에서 확인할 수 있도록 줄 번호와 함께 표시했습니다.</p>
+    <section class="source-panel" aria-label="소스 파일 본문"><div class="source-meta"><span>flowlens.py</span><span>363 lines</span></div><pre class="source-view"><code><span class="code-line"><span class="line-number" aria-hidden="true">001</span><span class="line-content">#!/usr/bin/env python3</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">002</span><span class="line-content">&quot;&quot;&quot;Analyze authorized network flow exports locally; never opens a network connection.&quot;&quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">003</span><span class="line-content">from __future__ import annotations</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">004</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">005</span><span class="line-content">import argparse</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">006</span><span class="line-content">import csv</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">007</span><span class="line-content">import hashlib</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">008</span><span class="line-content">import ipaddress</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">009</span><span class="line-content">import re</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">010</span><span class="line-content">import sys</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">011</span><span class="line-content">from collections import Counter</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">012</span><span class="line-content">from dataclasses import dataclass</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">013</span><span class="line-content">from datetime import datetime, timedelta, timezone</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">014</span><span class="line-content">from pathlib import Path</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">015</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">016</span><span class="line-content">FIELDS = (&quot;timestamp&quot;, &quot;src_ip&quot;, &quot;dst_ip&quot;, &quot;src_port&quot;, &quot;dst_port&quot;, &quot;protocol&quot;, &quot;bytes&quot;, &quot;action&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">017</span><span class="line-content">CTU_FIELDS = {&quot;StartTime&quot;, &quot;SrcAddr&quot;, &quot;Sport&quot;, &quot;DstAddr&quot;, &quot;Dport&quot;, &quot;Proto&quot;, &quot;TotBytes&quot;, &quot;Label&quot;}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">018</span><span class="line-content">TOKEN_RE = re.compile(r&quot;[A-Za-z0-9_.+-]{1,32}\Z&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">019</span><span class="line-content">LABEL_RE = re.compile(r&quot;[A-Za-z0-9_.=:/+-]{1,160}\Z&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">020</span><span class="line-content">BLOCKED_ACTIONS = {&quot;deny&quot;, &quot;denied&quot;, &quot;block&quot;, &quot;blocked&quot;, &quot;drop&quot;, &quot;reject&quot;}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">021</span><span class="line-content">COMMON_PORTS = {22: &quot;SSH&quot;, 53: &quot;DNS&quot;, 80: &quot;HTTP&quot;, 123: &quot;NTP&quot;, 443: &quot;HTTPS&quot;, 445: &quot;SMB&quot;, 3389: &quot;RDP&quot;}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">022</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">023</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">024</span><span class="line-content">@dataclass(frozen=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">025</span><span class="line-content">class Flow:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">026</span><span class="line-content">    timestamp: datetime</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">027</span><span class="line-content">    src_ip: str</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">028</span><span class="line-content">    dst_ip: str</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">029</span><span class="line-content">    src_port: int | None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">030</span><span class="line-content">    dst_port: int | None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">031</span><span class="line-content">    protocol: str</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">032</span><span class="line-content">    byte_count: int</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">033</span><span class="line-content">    action: str | None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">034</span><span class="line-content">    label_family: str | None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">035</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">036</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">037</span><span class="line-content">def parse_timestamp(value: str, ctu_format: bool = False) -&gt; datetime:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">038</span><span class="line-content">    cleaned = value.strip()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">039</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">040</span><span class="line-content">        result = datetime.fromisoformat(cleaned.replace(&quot;Z&quot;, &quot;+00:00&quot;))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">041</span><span class="line-content">        if result.tzinfo is None or result.utcoffset() is None:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">042</span><span class="line-content">            raise ValueError(&quot;timestamp must include a timezone&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">043</span><span class="line-content">        return result</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">044</span><span class="line-content">    except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">045</span><span class="line-content">        if ctu_format:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">046</span><span class="line-content">            for pattern in (&quot;%Y/%m/%d %H:%M:%S.%f&quot;, &quot;%Y/%m/%d %H:%M:%S&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">047</span><span class="line-content">                try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">048</span><span class="line-content">                    # CTU-13 StartTime has no timezone field; retain the source clock without guessing.</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">049</span><span class="line-content">                    return datetime.strptime(cleaned, pattern)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">050</span><span class="line-content">                except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">051</span><span class="line-content">                    pass</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">052</span><span class="line-content">        raise ValueError(&quot;timestamp must be timezone-aware ISO 8601 or a CTU-13 source timestamp&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">053</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">054</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">055</span><span class="line-content">def parse_ip(value: str, field: str) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">056</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">057</span><span class="line-content">        return str(ipaddress.ip_address(value.strip()))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">058</span><span class="line-content">    except (TypeError, ValueError):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">059</span><span class="line-content">        raise ValueError(f&quot;{field} must be an IPv4 or IPv6 address&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">060</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">061</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">062</span><span class="line-content">def parse_uint(value: str, field: str, maximum: int | None = None) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">063</span><span class="line-content">    cleaned = value.strip()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">064</span><span class="line-content">    if not re.fullmatch(r&quot;\d+&quot;, cleaned):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">065</span><span class="line-content">        raise ValueError(f&quot;{field} must be a non-negative integer&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">066</span><span class="line-content">    number = int(cleaned)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">067</span><span class="line-content">    if maximum is not None and number &gt; maximum:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">068</span><span class="line-content">        raise ValueError(f&quot;{field} must be at most {maximum}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">069</span><span class="line-content">    return number</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">070</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">071</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">072</span><span class="line-content">def parse_port(value: str, field: str) -&gt; int | None:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">073</span><span class="line-content">    cleaned = value.strip().lower()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">074</span><span class="line-content">    if cleaned in {&quot;&quot;, &quot;?&quot;, &quot;-&quot;, &quot;na&quot;, &quot;none&quot;}:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">075</span><span class="line-content">        return None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">076</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">077</span><span class="line-content">        number = int(cleaned, 16) if cleaned.startswith(&quot;0x&quot;) else int(cleaned)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">078</span><span class="line-content">    except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">079</span><span class="line-content">        raise ValueError(f&quot;{field} must be a decimal/hex port or missing&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">080</span><span class="line-content">    if not 0 &lt;= number &lt;= 65535:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">081</span><span class="line-content">        raise ValueError(f&quot;{field} must be between 0 and 65535&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">082</span><span class="line-content">    return number</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">083</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">084</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">085</span><span class="line-content">def parse_token(value: str, field: str) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">086</span><span class="line-content">    cleaned = value.strip()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">087</span><span class="line-content">    if not TOKEN_RE.fullmatch(cleaned):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">088</span><span class="line-content">        raise ValueError(f&quot;{field} contains unsupported characters or is too long&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">089</span><span class="line-content">    return cleaned.lower()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">090</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">091</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">092</span><span class="line-content">def label_family(value: str) -&gt; str | None:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">093</span><span class="line-content">    cleaned = value.strip()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">094</span><span class="line-content">    if not cleaned:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">095</span><span class="line-content">        return None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">096</span><span class="line-content">    if not LABEL_RE.fullmatch(cleaned):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">097</span><span class="line-content">        raise ValueError(&quot;Label contains unsupported characters or is too long&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">098</span><span class="line-content">    normalized = cleaned.lower().removeprefix(&quot;flow=&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">099</span><span class="line-content">    if normalized.startswith(&quot;from-botnet&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">100</span><span class="line-content">        return &quot;From-Botnet&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">101</span><span class="line-content">    if normalized.startswith(&quot;to-botnet&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">102</span><span class="line-content">        return &quot;To-Botnet&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">103</span><span class="line-content">    if normalized.startswith(&quot;from-normal&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">104</span><span class="line-content">        return &quot;From-Normal&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">105</span><span class="line-content">    if normalized.startswith(&quot;to-normal&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">106</span><span class="line-content">        return &quot;To-Normal&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">107</span><span class="line-content">    if &quot;background&quot; in normalized:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">108</span><span class="line-content">        return &quot;Background&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">109</span><span class="line-content">    if &quot;botnet&quot; in normalized:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">110</span><span class="line-content">        return &quot;Botnet (other label)&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">111</span><span class="line-content">    return &quot;Other&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">112</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">113</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">114</span><span class="line-content">def load_flows(path: Path) -&gt; tuple[list[Flow], list[int], str]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">115</span><span class="line-content">    flows: list[Flow] = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">116</span><span class="line-content">    invalid_lines: list[int] = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">117</span><span class="line-content">    with path.open(&quot;r&quot;, encoding=&quot;utf-8-sig&quot;, newline=&quot;&quot;) as handle:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">118</span><span class="line-content">        reader = csv.DictReader(handle)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">119</span><span class="line-content">        headers = set(reader.fieldnames or [])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">120</span><span class="line-content">        if set(FIELDS).issubset(headers):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">121</span><span class="line-content">            schema = &quot;standard CSV&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">122</span><span class="line-content">            is_ctu = False</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">123</span><span class="line-content">        elif CTU_FIELDS.issubset(headers):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">124</span><span class="line-content">            schema = &quot;CTU-13/Argus flow CSV&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">125</span><span class="line-content">            is_ctu = True</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">126</span><span class="line-content">        else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">127</span><span class="line-content">            expected = &quot;, &quot;.join(FIELDS)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">128</span><span class="line-content">            ctu_expected = &quot;, &quot;.join(sorted(CTU_FIELDS))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">129</span><span class="line-content">            raise ValueError(f&quot;CSV must use the standard columns ({expected}) or CTU-13 columns ({ctu_expected})&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">130</span><span class="line-content">        for row in reader:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">131</span><span class="line-content">            try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">132</span><span class="line-content">                if is_ctu:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">133</span><span class="line-content">                    flows.append(Flow(</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">134</span><span class="line-content">                        timestamp=parse_timestamp(row.get(&quot;StartTime&quot;) or &quot;&quot;, ctu_format=True),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">135</span><span class="line-content">                        src_ip=parse_ip(row.get(&quot;SrcAddr&quot;) or &quot;&quot;, &quot;SrcAddr&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">136</span><span class="line-content">                        dst_ip=parse_ip(row.get(&quot;DstAddr&quot;) or &quot;&quot;, &quot;DstAddr&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">137</span><span class="line-content">                        src_port=parse_port(row.get(&quot;Sport&quot;) or &quot;&quot;, &quot;Sport&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">138</span><span class="line-content">                        dst_port=parse_port(row.get(&quot;Dport&quot;) or &quot;&quot;, &quot;Dport&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">139</span><span class="line-content">                        protocol=parse_token(row.get(&quot;Proto&quot;) or &quot;&quot;, &quot;Proto&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">140</span><span class="line-content">                        byte_count=parse_uint(row.get(&quot;TotBytes&quot;) or &quot;&quot;, &quot;TotBytes&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">141</span><span class="line-content">                        action=None,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">142</span><span class="line-content">                        label_family=label_family(row.get(&quot;Label&quot;) or &quot;&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">143</span><span class="line-content">                    ))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">144</span><span class="line-content">                else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">145</span><span class="line-content">                    action_value = row.get(&quot;action&quot;) or &quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">146</span><span class="line-content">                    action = parse_token(action_value, &quot;action&quot;) if action_value.strip() else None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">147</span><span class="line-content">                    raw_label = row.get(&quot;label&quot;) or row.get(&quot;Label&quot;) or &quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">148</span><span class="line-content">                    flows.append(Flow(</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">149</span><span class="line-content">                        timestamp=parse_timestamp(row.get(&quot;timestamp&quot;) or &quot;&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">150</span><span class="line-content">                        src_ip=parse_ip(row.get(&quot;src_ip&quot;) or &quot;&quot;, &quot;src_ip&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">151</span><span class="line-content">                        dst_ip=parse_ip(row.get(&quot;dst_ip&quot;) or &quot;&quot;, &quot;dst_ip&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">152</span><span class="line-content">                        src_port=parse_port(row.get(&quot;src_port&quot;) or &quot;&quot;, &quot;src_port&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">153</span><span class="line-content">                        dst_port=parse_port(row.get(&quot;dst_port&quot;) or &quot;&quot;, &quot;dst_port&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">154</span><span class="line-content">                        protocol=parse_token(row.get(&quot;protocol&quot;) or &quot;&quot;, &quot;protocol&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">155</span><span class="line-content">                        byte_count=parse_uint(row.get(&quot;bytes&quot;) or &quot;&quot;, &quot;bytes&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">156</span><span class="line-content">                        action=action,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">157</span><span class="line-content">                        label_family=label_family(raw_label) if raw_label.strip() else None,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">158</span><span class="line-content">                    ))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">159</span><span class="line-content">            except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">160</span><span class="line-content">                invalid_lines.append(reader.line_num)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">161</span><span class="line-content">    return flows, invalid_lines, schema</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">162</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">163</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">164</span><span class="line-content">def network_aliases(flows: list[Flow]) -&gt; dict[str, str]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">165</span><span class="line-content">    totals: dict[str, tuple[int, int]] = {}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">166</span><span class="line-content">    for flow in flows:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">167</span><span class="line-content">        for value in (flow.src_ip, flow.dst_ip):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">168</span><span class="line-content">            address = ipaddress.ip_address(value)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">169</span><span class="line-content">            prefix = 24 if address.version == 4 else 64</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">170</span><span class="line-content">            network = str(ipaddress.ip_network(f&quot;{value}/{prefix}&quot;, strict=False))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">171</span><span class="line-content">            count, byte_count = totals.get(network, (0, 0))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">172</span><span class="line-content">            totals[network] = (count + 1, byte_count + flow.byte_count)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">173</span><span class="line-content">    ordered = sorted(totals.items(), key=lambda item: (-item[1][1], -item[1][0], item[0]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">174</span><span class="line-content">    return {network: f&quot;net-{number:02d}&quot; for number, (network, _) in enumerate(ordered, 1)}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">175</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">176</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">177</span><span class="line-content">def display_ip(value: str, reveal: bool, aliases: dict[str, str]) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">178</span><span class="line-content">    if reveal:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">179</span><span class="line-content">        return value</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">180</span><span class="line-content">    address = ipaddress.ip_address(value)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">181</span><span class="line-content">    prefix = 24 if address.version == 4 else 64</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">182</span><span class="line-content">    network = str(ipaddress.ip_network(f&quot;{value}/{prefix}&quot;, strict=False))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">183</span><span class="line-content">    return aliases[network]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">184</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">185</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">186</span><span class="line-content">def table(headers: tuple[str, ...], rows: list[tuple[str, ...]]) -&gt; list[str]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">187</span><span class="line-content">    lines = [&quot;| &quot; + &quot; | &quot;.join(headers) + &quot; |&quot;, &quot;| &quot; + &quot; | &quot;.join(&quot;---&quot; for _ in headers) + &quot; |&quot;]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">188</span><span class="line-content">    lines.extend(&quot;| &quot; + &quot; | &quot;.join(row) + &quot; |&quot; for row in rows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">189</span><span class="line-content">    return lines</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">190</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">191</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">192</span><span class="line-content">def window_number(timestamp: datetime, window_minutes: int) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">193</span><span class="line-content">    if timestamp.tzinfo is not None and timestamp.utcoffset() is not None:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">194</span><span class="line-content">        seconds = timestamp.astimezone(timezone.utc).timestamp()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">195</span><span class="line-content">    else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">196</span><span class="line-content">        seconds = (timestamp - datetime(1970, 1, 1)).total_seconds()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">197</span><span class="line-content">    return int(seconds) // (window_minutes * 60)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">198</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">199</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">200</span><span class="line-content">def format_window_start(window: int, window_minutes: int, source_clock: bool) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">201</span><span class="line-content">    seconds = window * window_minutes * 60</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">202</span><span class="line-content">    if source_clock:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">203</span><span class="line-content">        value = datetime(1970, 1, 1) + timedelta(seconds=seconds)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">204</span><span class="line-content">        return value.strftime(&quot;%Y-%m-%d %H:%M (source clock)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">205</span><span class="line-content">    value = datetime.fromtimestamp(seconds, tz=timezone.utc)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">206</span><span class="line-content">    return value.strftime(&quot;%Y-%m-%d %H:%M UTC&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">207</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">208</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">209</span><span class="line-content">def input_fingerprint(path: Path) -&gt; tuple[int, str]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">210</span><span class="line-content">    digest = hashlib.sha256()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">211</span><span class="line-content">    size = 0</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">212</span><span class="line-content">    with path.open(&quot;rb&quot;) as handle:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">213</span><span class="line-content">        for chunk in iter(lambda: handle.read(1024 * 1024), b&quot;&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">214</span><span class="line-content">            digest.update(chunk)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">215</span><span class="line-content">            size += len(chunk)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">216</span><span class="line-content">    return size, digest.hexdigest()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">217</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">218</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">219</span><span class="line-content">def build_report(flows: list[Flow], invalid_lines: list[int], schema: str, threshold: int, window_minutes: int, top: int, reveal: bool, input_bytes: int, input_sha256: str, source_url: str | None, source_range_sha256: str | None, sample_note: str | None, limitation: str | None) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">220</span><span class="line-content">    aliases = {} if reveal else network_aliases(flows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">221</span><span class="line-content">    protocols = Counter(flow.protocol.upper() for flow in flows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">222</span><span class="line-content">    destination_ports: Counter[int | None] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">223</span><span class="line-content">    source_flows: Counter[str] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">224</span><span class="line-content">    source_bytes: Counter[str] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">225</span><span class="line-content">    destination_flows: Counter[str] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">226</span><span class="line-content">    destination_bytes: Counter[str] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">227</span><span class="line-content">    labels = Counter(flow.label_family for flow in flows if flow.label_family)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">228</span><span class="line-content">    blocked_windows: Counter[tuple[str, int]] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">229</span><span class="line-content">    has_action_field = any(flow.action is not None for flow in flows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">230</span><span class="line-content">    total_bytes = 0</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">231</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">232</span><span class="line-content">    for flow in flows:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">233</span><span class="line-content">        destination_ports[flow.dst_port] += 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">234</span><span class="line-content">        source_flows[flow.src_ip] += 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">235</span><span class="line-content">        source_bytes[flow.src_ip] += flow.byte_count</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">236</span><span class="line-content">        destination_flows[flow.dst_ip] += 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">237</span><span class="line-content">        destination_bytes[flow.dst_ip] += flow.byte_count</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">238</span><span class="line-content">        total_bytes += flow.byte_count</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">239</span><span class="line-content">        if flow.action in BLOCKED_ACTIONS:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">240</span><span class="line-content">            blocked_windows[(flow.src_ip, window_number(flow.timestamp, window_minutes))] += 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">241</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">242</span><span class="line-content">    lines = [&quot;# FlowLens — 네트워크 흐름 보고서&quot;, &quot;&quot;, &quot;## 요약&quot;, &quot;&quot;]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">243</span><span class="line-content">    lines.append(f&quot;- 입력 형식: {schema}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">244</span><span class="line-content">    lines.append(f&quot;- 분석 흐름: {len(flows):,}건&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">245</span><span class="line-content">    lines.append(f&quot;- 건너뛴 잘못된 행: {len(invalid_lines):,}건&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">246</span><span class="line-content">    lines.append(f&quot;- 합계 전송량: {total_bytes:,} bytes&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">247</span><span class="line-content">    lines.append(f&quot;- 주소 표시: {&#x27;원문 표시(사용자 선택)&#x27; if reveal else &#x27;대역별 별칭(net-##)으로 익명화&#x27;}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">248</span><span class="line-content">    lines.append(f&quot;- 입력 파일 크기: {input_bytes:,} bytes&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">249</span><span class="line-content">    lines.append(f&quot;- 입력 파일 SHA-256: `{input_sha256}`&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">250</span><span class="line-content">    if source_url:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">251</span><span class="line-content">        lines.append(f&quot;- 원본 출처: {source_url}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">252</span><span class="line-content">    if source_range_sha256:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">253</span><span class="line-content">        lines.append(f&quot;- 내려받은 원본 구간 SHA-256: `{source_range_sha256}`&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">254</span><span class="line-content">    if sample_note:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">255</span><span class="line-content">        lines.append(f&quot;- 입력 구간: {sample_note}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">256</span><span class="line-content">    if limitation:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">257</span><span class="line-content">        lines.append(f&quot;- 표본 한계: {limitation}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">258</span><span class="line-content">    if schema.startswith(&quot;CTU-13&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">259</span><span class="line-content">        lines.append(&quot;- 원본 시각: 시간대가 없는 CTU-13 시각 문자열 그대로 유지&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">260</span><span class="line-content">    lines.extend([&quot;&quot;, &quot;## 프로토콜&quot;, &quot;&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">261</span><span class="line-content">    lines.extend(table((&quot;프로토콜&quot;, &quot;흐름 수&quot;), [(name, f&quot;{count:,}&quot;) for name, count in protocols.most_common()]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">262</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">263</span><span class="line-content">    if labels:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">264</span><span class="line-content">        lines.extend([&quot;&quot;, &quot;## 원본 라벨 계열&quot;, &quot;&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">265</span><span class="line-content">        lines.extend(table((&quot;라벨 계열&quot;, &quot;흐름 수&quot;), [(str(name), f&quot;{count:,}&quot;) for name, count in labels.most_common(top)]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">266</span><span class="line-content">        lines.append(&quot;&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">267</span><span class="line-content">        lines.append(&quot;라벨은 데이터 제공자가 붙인 분류입니다. `To-Botnet`/`To-Normal`은 해당 호스트를 향한 흐름이며 그 자체를 악성/정상 발신으로 간주하지 않습니다.&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">268</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">269</span><span class="line-content">    port_rows = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">270</span><span class="line-content">    for port, count in destination_ports.most_common(top):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">271</span><span class="line-content">        if port is None:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">272</span><span class="line-content">            label = &quot;미상 포트&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">273</span><span class="line-content">        else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">274</span><span class="line-content">            label = f&quot;{port} ({COMMON_PORTS[port]})&quot; if port in COMMON_PORTS else str(port)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">275</span><span class="line-content">        port_rows.append((label, f&quot;{count:,}&quot;))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">276</span><span class="line-content">    lines.extend([&quot;&quot;, &quot;## 목적지 포트&quot;, &quot;&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">277</span><span class="line-content">    lines.extend(table((&quot;포트&quot;, &quot;흐름 수&quot;), port_rows or [(&quot;없음&quot;, &quot;0&quot;)]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">278</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">279</span><span class="line-content">    def endpoint_rows(counts: Counter[str], byte_counts: Counter[str]) -&gt; list[tuple[str, ...]]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">280</span><span class="line-content">        grouped: dict[str, tuple[int, int]] = {}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">281</span><span class="line-content">        for host, count in counts.items():</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">282</span><span class="line-content">            label = display_ip(host, reveal, aliases)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">283</span><span class="line-content">            previous_count, previous_bytes = grouped.get(label, (0, 0))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">284</span><span class="line-content">            grouped[label] = (previous_count + count, previous_bytes + byte_counts[host])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">285</span><span class="line-content">        ordered = sorted(grouped.items(), key=lambda item: (-item[1][1], -item[1][0], item[0]))[:top]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">286</span><span class="line-content">        return [(label, f&quot;{count:,}&quot;, f&quot;{byte_count:,}&quot;) for label, (count, byte_count) in ordered]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">287</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">288</span><span class="line-content">    lines.extend([&quot;&quot;, &quot;## 상위 출발지&quot;, &quot;&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">289</span><span class="line-content">    lines.extend(table((&quot;주소&quot;, &quot;흐름 수&quot;, &quot;bytes&quot;), endpoint_rows(source_flows, source_bytes) or [(&quot;없음&quot;, &quot;0&quot;, &quot;0&quot;)]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">290</span><span class="line-content">    lines.extend([&quot;&quot;, &quot;## 상위 목적지&quot;, &quot;&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">291</span><span class="line-content">    lines.extend(table((&quot;주소&quot;, &quot;흐름 수&quot;, &quot;bytes&quot;), endpoint_rows(destination_flows, destination_bytes) or [(&quot;없음&quot;, &quot;0&quot;, &quot;0&quot;)]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">292</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">293</span><span class="line-content">    if has_action_field:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">294</span><span class="line-content">        bursts = sorted(</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">295</span><span class="line-content">            ((host, window, count) for (host, window), count in blocked_windows.items() if count &gt;= threshold),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">296</span><span class="line-content">            key=lambda item: (-item[2], item[0], item[1]),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">297</span><span class="line-content">        )</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">298</span><span class="line-content">        burst_rows = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">299</span><span class="line-content">        source_clock = any(flow.timestamp.tzinfo is None for flow in flows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">300</span><span class="line-content">        for host, window, count in bursts[:top]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">301</span><span class="line-content">            start = format_window_start(window, window_minutes, source_clock)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">302</span><span class="line-content">            burst_rows.append((display_ip(host, reveal, aliases), start, f&quot;{count:,}&quot;))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">303</span><span class="line-content">        lines.extend([&quot;&quot;, f&quot;## 차단 집중 구간 ({window_minutes}분 창, {threshold}건 이상)&quot;, &quot;&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">304</span><span class="line-content">        lines.extend(table((&quot;출발지&quot;, &quot;구간 시작&quot;, &quot;차단 흐름&quot;), burst_rows or [(&quot;기준 초과 없음&quot;, &quot;—&quot;, &quot;0&quot;)]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">305</span><span class="line-content">    else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">306</span><span class="line-content">        lines.extend([&quot;&quot;, &quot;## 차단 이벤트&quot;, &quot;&quot;, &quot;입력에는 방화벽 action 열이 없어 차단 집중 분석을 적용하지 않았습니다.&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">307</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">308</span><span class="line-content">    if invalid_lines:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">309</span><span class="line-content">        shown = &quot;, &quot;.join(str(number) for number in invalid_lines[:10])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">310</span><span class="line-content">        suffix = &quot; …&quot; if len(invalid_lines) &gt; 10 else &quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">311</span><span class="line-content">        lines.extend([&quot;&quot;, f&quot;잘못된 행은 분석에서 제외했습니다. 행 번호(최대 10개): {shown}{suffix}&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">312</span><span class="line-content">    lines.extend([&quot;&quot;, &quot;&gt; 이 도구는 입력 파일만 읽으며 네트워크 연결이나 패킷 수집을 하지 않습니다.&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">313</span><span class="line-content">    return &quot;\n&quot;.join(lines) + &quot;\n&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">314</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">315</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">316</span><span class="line-content">def positive_int(value: str) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">317</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">318</span><span class="line-content">        parsed = int(value)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">319</span><span class="line-content">    except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">320</span><span class="line-content">        raise argparse.ArgumentTypeError(&quot;양의 정수를 입력하세요&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">321</span><span class="line-content">    if parsed &lt; 1:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">322</span><span class="line-content">        raise argparse.ArgumentTypeError(&quot;양의 정수를 입력하세요&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">323</span><span class="line-content">    return parsed</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">324</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">325</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">326</span><span class="line-content">def main(argv: list[str] | None = None) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">327</span><span class="line-content">    parser = argparse.ArgumentParser(description=&quot;승인된 네트워크 흐름 CSV를 로컬에서 분석하고 익명화 Markdown 보고서를 만듭니다.&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">328</span><span class="line-content">    parser.add_argument(&quot;input&quot;, type=Path, help=&quot;표준 CSV 또는 CTU-13/Argus binetflow CSV&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">329</span><span class="line-content">    parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, type=Path, help=&quot;보고서 경로 (기본값: 입력 파일 옆 flowlens-report.md)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">330</span><span class="line-content">    parser.add_argument(&quot;--threshold&quot;, type=positive_int, default=5, help=&quot;차단 집중 기준 건수 (기본값: 5)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">331</span><span class="line-content">    parser.add_argument(&quot;--window-minutes&quot;, type=positive_int, default=10, help=&quot;차단 집계 시간창(분, 기본값: 10)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">332</span><span class="line-content">    parser.add_argument(&quot;--top&quot;, type=positive_int, default=10, help=&quot;표에 표시할 최대 행 수 (기본값: 10)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">333</span><span class="line-content">    parser.add_argument(&quot;--show-addresses&quot;, action=&quot;store_true&quot;, help=&quot;보고서에 IP 원문 표시 (기본은 네트워크 단위 익명화)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">334</span><span class="line-content">    parser.add_argument(&quot;--source-url&quot;, help=&quot;입력 원본의 공개 출처 URL&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">335</span><span class="line-content">    parser.add_argument(&quot;--source-range-sha256&quot;, help=&quot;내려받은 원본 바이트 구간의 SHA-256&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">336</span><span class="line-content">    parser.add_argument(&quot;--sample-note&quot;, help=&quot;입력한 실제 표본의 범위와 변환 설명&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">337</span><span class="line-content">    parser.add_argument(&quot;--limitation&quot;, help=&quot;결과를 과대해석하지 않도록 표본/자료의 한계 설명&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">338</span><span class="line-content">    args = parser.parse_args(argv)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">339</span><span class="line-content">    if args.top &gt; 50:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">340</span><span class="line-content">        parser.error(&quot;--top은 50 이하여야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">341</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">342</span><span class="line-content">    output = args.output or args.input.with_name(&quot;flowlens-report.md&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">343</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">344</span><span class="line-content">        flows, invalid_lines, schema = load_flows(args.input)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">345</span><span class="line-content">        if not flows:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">346</span><span class="line-content">            raise ValueError(&quot;분석할 유효한 흐름이 없습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">347</span><span class="line-content">        input_bytes, input_sha256 = input_fingerprint(args.input)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">348</span><span class="line-content">        report = build_report(flows, invalid_lines, schema, args.threshold, args.window_minutes, args.top, args.show_addresses, input_bytes, input_sha256, args.source_url, args.source_range_sha256, args.sample_note, args.limitation)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">349</span><span class="line-content">        output.parent.mkdir(parents=True, exist_ok=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">350</span><span class="line-content">        output.write_text(report, encoding=&quot;utf-8&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">351</span><span class="line-content">    except (OSError, UnicodeError, csv.Error, ValueError) as exc:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">352</span><span class="line-content">        print(f&quot;FlowLens 오류: {exc}&quot;, file=sys.stderr)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">353</span><span class="line-content">        return 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">354</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">355</span><span class="line-content">    print(f&quot;보고서 저장: {output}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">356</span><span class="line-content">    if invalid_lines:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">357</span><span class="line-content">        print(f&quot;주의: 잘못된 행 {len(invalid_lines)}개를 제외했습니다.&quot;, file=sys.stderr)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">358</span><span class="line-content">        return 2</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">359</span><span class="line-content">    return 0</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">360</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">361</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">362</span><span class="line-content">if __name__ == &quot;__main__&quot;:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">363</span><span class="line-content">    raise SystemExit(main())</span></span></code></pre></section>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>줄 번호는 화면에서 읽기 위한 표시입니다. 실제 분석 코드는 아래 원문 그대로입니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

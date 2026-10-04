@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>FlowLens — 실제 데이터 실행 기록 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/01-flowlens/run-notes.md</span></p>
+    <h1 class="reader-title">FlowLens — 실제 데이터 실행 기록</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><h2>입력과 출처</h2>
+<ul><li>원본: <a href="https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow" target="_blank" rel="noopener noreferrer">CTU-13 Botnet Capture 42 상세 양방향 flow labels</a></li><li>공식 설명: <a href="https://www.stratosphereips.org/datasets-ctu13" target="_blank" rel="noopener noreferrer">Stratosphere CTU-13 데이터셋</a></li><li>원본 크기: HTTP 범위 응답의 전체 길이 386,629,271 bytes</li><li>탐색 구간: 시작 bytes <code>0-2097151</code> (SHA-256 <code>2d0af0c7ff129bb2fefe18a74ba81828f4ee4640cb45982e28171af1dae2141d</code>), 중간 bytes <code>192266059-194363210</code> (<code>8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd5c02274b</code>), 끝 bytes <code>384532119-386629270</code> (<code>9d98509776c3d7f4f89f82cb990355e57492de80977f087207a66347df9f8add</code>).</li><li>각 구간은 부분 시작/끝 행을 제외하고 완전한 CSV 행만 남겼습니다. 가운데 표본에는 실제 파일 헤더를 붙였습니다. 분석 입력 <code>ctu13-botnet42-mid-complete.binetflow</code>: 2,097,038 bytes, SHA-256 <code>5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a</code>.</li><li>표본 선택: 시작/중간/끝 구간을 먼저 훑었습니다. 시작 구간 15,279행과 끝 구간 15,431행에서는 <code>From-Botnet</code> 라벨이 보이지 않았고, 중간 구간 15,313행에는 128건이 있었습니다. 이 목적 탐색으로 가운데 표본을 선택했으므로 무작위 표본이 아니며 데이터셋 전체 유병률이나 공격률을 추정할 수 없습니다.</li></ul>
+<h2>실행 관찰</h2>
+<ul><li>실제 실행 결과: 15,313 흐름, 잘못된 행 0, 합계 157,353,488 bytes</li><li>제공자 라벨 계열: Background 15,098, From-Botnet 128, From-Normal 86, To-Normal 1</li><li>프로토콜 상위: UDP 12,728, TCP 2,360, ICMP 172</li><li>출력은 원본 IP 대신 <code>net-##</code> 대역 별칭을 사용하며, 보고서에 원본 파일 입력의 SHA-256·크기·출처·선택 구간을 기록합니다.</li><li><code>To-Normal</code> 한 건을 정상 발신 흐름으로 해석하지 않았습니다. 원본 라벨 설명상 <code>To-*</code>는 라벨 호스트를 향한 흐름입니다.</li><li>원본 형식에는 방화벽 action이 없어 차단 집중 분석은 생략했습니다.</li></ul>
+<h2>실제 결함과 수정</h2>
+<ul><li>첫 실제 보고서의 결함: 익명 별칭의 번호가 원본 주소가 처음 등장한 순서에 좌우돼, 상위 흐름이 많은 대역을 빠르게 찾기 어려웠습니다. 수정 후에는 대역별 bytes와 흐름 수 순으로 <code>net-01</code>부터 번호를 붙여 집계 표 순서와 맞췄습니다.</li><li>재현성 결함: 첫 실제 보고서에는 입력 파일 지문과 원본 출처/표본 범위가 없었습니다. 수정 후 도구가 입력 바이트 수와 SHA-256, 명시한 HTTPS 출처, 표본 설명을 보고서에 포함합니다.</li><li>수정 후 동일한 실제 표본을 다시 처리했고 위 결과가 보고서와 일치하는지 확인했습니다.</li><li>후속 독립 대조: 분석기 코드를 import하지 않은 별도 CSV 집계에서도 15,313행·0개 오류·157,353,488 bytes·라벨 네 계열·상위 대역 수치가 보고서와 일치했습니다. 대조 도구는 처음에 목적지 포트 <code>-</code> 27건을 거부했지만, 이를 FlowLens 계약에 따라 미상 포트로 처리하도록 고쳐 재계산했습니다. 전체 과정은 <a href="../independent-audit.html">독립 대조 기록</a>에 있습니다.</li></ul>
+<h2>판단 출처와 제한</h2>
+<ul><li>AI가 수행한 일: 공개 원본 구간을 내려받아 완전한 행으로 정리하고, 분석기 구현·실행·보고서 검토 및 위 개선을 했습니다.</li><li>사용자가 직접 내린 기준: 사용자가 네 실험 종료 뒤 피드백하기로 했으므로 아직 받지 않았습니다. 표본 선택·주소 별칭 기준은 사용자 판단으로 표시하지 않습니다.</li><li>따르지 않은 초기 접근: 앞선 초안은 합성 흐름 CSV와 실행 기록을 사용했지만, 사용자가 실제 자료만 원한다고 한 뒤 이를 증거에서 제외하고 공개 실데이터 실행으로 교체했습니다.</li><li>입력 표본은 전체 파일의 약 2MiB 구간이며, 공개 보고서는 주소를 별칭 처리했습니다. 원본 원시 데이터는 결과물 폴더에 넣지 않았습니다.</li></ul></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

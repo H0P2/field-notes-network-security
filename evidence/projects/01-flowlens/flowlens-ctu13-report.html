@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>FlowLens — 네트워크 흐름 보고서 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/01-flowlens/flowlens-ctu13-report.md</span></p>
+    <h1 class="reader-title">FlowLens — 네트워크 흐름 보고서</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><h2>요약</h2>
+<ul><li>입력 형식: CTU-13/Argus flow CSV</li><li>분석 흐름: 15,313건</li><li>건너뛴 잘못된 행: 0건</li><li>합계 전송량: 157,353,488 bytes</li><li>주소 표시: 대역별 별칭(net-##)으로 익명화</li><li>입력 파일 크기: 2,097,038 bytes</li><li>입력 파일 SHA-256: <code>5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a</code></li><li>원본 출처: <a href="https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow" target="_blank" rel="noopener noreferrer">https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow</a></li><li>내려받은 원본 구간 SHA-256: <code>8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b</code></li><li>입력 구간: 원본 bytes 192266059-194363210에서 완전한 행만 추리고 헤더를 붙인 부분 표본</li><li>표본 한계: 목적 탐색으로 선택한 약 2 MiB 일부 구간이며 전체 capture 비율이나 공격률을 추정하지 않음</li><li>원본 시각: 시간대가 없는 CTU-13 시각 문자열 그대로 유지</li></ul>
+<h2>프로토콜</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">프로토콜</th><th scope="col">흐름 수</th></tr></thead><tbody><tr><td>UDP</td><td>12,728</td></tr><tr><td>TCP</td><td>2,360</td></tr><tr><td>ICMP</td><td>172</td></tr><tr><td>RTP</td><td>21</td></tr><tr><td>RTCP</td><td>14</td></tr><tr><td>IGMP</td><td>10</td></tr><tr><td>ARP</td><td>8</td></tr></tbody></table></div>
+<h2>원본 라벨 계열</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">라벨 계열</th><th scope="col">흐름 수</th></tr></thead><tbody><tr><td>Background</td><td>15,098</td></tr><tr><td>From-Botnet</td><td>128</td></tr><tr><td>From-Normal</td><td>86</td></tr><tr><td>To-Normal</td><td>1</td></tr></tbody></table></div>
+<p>라벨은 데이터 제공자가 붙인 분류입니다. <code>To-Botnet</code>/<code>To-Normal</code>은 해당 호스트를 향한 흐름이며 그 자체를 악성/정상 발신으로 간주하지 않습니다.</p>
+<h2>목적지 포트</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">포트</th><th scope="col">흐름 수</th></tr></thead><tbody><tr><td>13363</td><td>6,075</td></tr><tr><td>53 (DNS)</td><td>5,177</td></tr><tr><td>80 (HTTP)</td><td>1,217</td></tr><tr><td>443 (HTTPS)</td><td>413</td></tr><tr><td>25</td><td>75</td></tr><tr><td>6881</td><td>59</td></tr><tr><td>35155</td><td>53</td></tr><tr><td>5938</td><td>35</td></tr><tr><td>123 (NTP)</td><td>33</td></tr><tr><td>12114</td><td>30</td></tr></tbody></table></div>
+<h2>상위 출발지</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">주소</th><th scope="col">흐름 수</th><th scope="col">bytes</th></tr></thead><tbody><tr><td>net-01</td><td>6,148</td><td>58,696,409</td></tr><tr><td>net-02</td><td>929</td><td>55,529,213</td></tr><tr><td>net-08</td><td>2</td><td>10,369,755</td></tr><tr><td>net-10</td><td>1,196</td><td>4,959,162</td></tr><tr><td>net-12</td><td>1</td><td>4,945,026</td></tr><tr><td>net-14</td><td>2</td><td>3,728,517</td></tr><tr><td>net-09</td><td>96</td><td>3,225,286</td></tr><tr><td>net-22</td><td>1</td><td>963,175</td></tr><tr><td>net-23</td><td>2</td><td>874,526</td></tr><tr><td>net-30</td><td>32</td><td>531,477</td></tr></tbody></table></div>
+<h2>상위 목적지</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">주소</th><th scope="col">흐름 수</th><th scope="col">bytes</th></tr></thead><tbody><tr><td>net-03</td><td>110</td><td>31,988,401</td></tr><tr><td>net-01</td><td>6,601</td><td>28,370,489</td></tr><tr><td>net-04</td><td>5,272</td><td>13,271,330</td></tr><tr><td>net-05</td><td>5</td><td>13,144,754</td></tr><tr><td>net-06</td><td>5</td><td>12,940,487</td></tr><tr><td>net-07</td><td>2</td><td>10,815,507</td></tr><tr><td>net-09</td><td>119</td><td>5,911,592</td></tr><tr><td>net-11</td><td>1</td><td>4,999,778</td></tr><tr><td>net-13</td><td>7</td><td>3,782,316</td></tr><tr><td>net-15</td><td>82</td><td>2,870,934</td></tr></tbody></table></div>
+<h2>차단 이벤트</h2>
+<p>입력에는 방화벽 action 열이 없어 차단 집중 분석을 적용하지 않았습니다.</p>
+<blockquote><p>이 도구는 입력 파일만 읽으며 네트워크 연결이나 패킷 수집을 하지 않습니다.</p></blockquote></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
