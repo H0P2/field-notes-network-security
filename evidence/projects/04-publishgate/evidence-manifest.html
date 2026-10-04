@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 source / json 보기">
+  <title>Evidence Manifest source — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>SOURCE / JSON <span class="reader-path">evidence/projects/04-publishgate/evidence-manifest.json</span></p>
+    <h1 class="reader-title">Evidence Manifest source</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <section class="source-panel" aria-label="소스 파일 본문"><div class="source-meta"><span>evidence-manifest.json</span><span>33 lines</span></div><pre class="source-view"><code><span class="code-line"><span class="line-number" aria-hidden="true">001</span><span class="line-content">{</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">002</span><span class="line-content">  &quot;format_version&quot;: 1,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">003</span><span class="line-content">  &quot;artifacts&quot;: [</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">004</span><span class="line-content">    {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">005</span><span class="line-content">      &quot;id&quot;: &quot;flowlens-ctu13-mid-slice&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">006</span><span class="line-content">      &quot;report_path&quot;: &quot;../01-flowlens/flowlens-ctu13-report.md&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">007</span><span class="line-content">      &quot;source_url&quot;: &quot;https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">008</span><span class="line-content">      &quot;downloaded_range_sha256&quot;: &quot;8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">009</span><span class="line-content">      &quot;input_sha256&quot;: &quot;5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">010</span><span class="line-content">      &quot;input_bytes&quot;: 2097038,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">011</span><span class="line-content">      &quot;records_analyzed&quot;: 15313,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">012</span><span class="line-content">      &quot;record_evidence&quot;: &quot;- 분석 흐름: 15,313건&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">013</span><span class="line-content">      &quot;sample_scope&quot;: &quot;원본 bytes 192266059-194363210에서 완전한 행만 추리고 헤더를 붙인 부분 표본&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">014</span><span class="line-content">      &quot;limitation&quot;: &quot;목적 탐색으로 선택한 약 2 MiB 일부 구간이며 전체 capture 비율이나 공격률을 추정하지 않음&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">015</span><span class="line-content">      &quot;identifiers_redacted&quot;: true,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">016</span><span class="line-content">      &quot;report_sha256&quot;: &quot;6345a99a699436df0601853ab9201dc56305c3381c7864f58dce6c5578e56d5f&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">017</span><span class="line-content">    },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">018</span><span class="line-content">    {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">019</span><span class="line-content">      &quot;id&quot;: &quot;authsentry-cowrie-prefix&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">020</span><span class="line-content">      &quot;report_path&quot;: &quot;../02-authsentry/authsentry-cowrie-report.md&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">021</span><span class="line-content">      &quot;source_url&quot;: &quot;https://zenodo.org/records/21260400&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">022</span><span class="line-content">      &quot;downloaded_range_sha256&quot;: &quot;eadeb1736a3e36cd2547d2576a0e27f2acda14dd67fd5d946ac476bc45a3cf5a&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">023</span><span class="line-content">      &quot;input_sha256&quot;: &quot;6621c0f4c095fbd558c2366915d82fe15fb4888eebe33f854666a9e95ffc0df9&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">024</span><span class="line-content">      &quot;input_bytes&quot;: 35410664,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">025</span><span class="line-content">      &quot;records_analyzed&quot;: 58334,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">026</span><span class="line-content">      &quot;record_evidence&quot;: &quot;- 세션 집계 레코드: 58,334건&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">027</span><span class="line-content">      &quot;sample_scope&quot;: &quot;원본 session_aggregation.jsonl.gz의 압축 bytes 0-2097151만 해제하고 완전한 JSONL 행만 남긴 prefix 표본&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">028</span><span class="line-content">      &quot;limitation&quot;: &quot;대용량 파일의 2 MiB prefix 표본이며 전체 데이터셋 또는 인터넷 전체를 대표하지 않음; 집계치는 세션 first_seen 날짜에 귀속함&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">029</span><span class="line-content">      &quot;identifiers_redacted&quot;: true,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">030</span><span class="line-content">      &quot;report_sha256&quot;: &quot;b977a77f661fd18e54b829eb9d2e6859e6e19a4812da1c2c1040cc7279889a50&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">031</span><span class="line-content">    }</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">032</span><span class="line-content">  ]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">033</span><span class="line-content">}</span></span></code></pre></section>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

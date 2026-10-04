@@ -1,0 +1,33 @@
+{
+  "format_version": 1,
+  "artifacts": [
+    {
+      "id": "flowlens-ctu13-mid-slice",
+      "report_path": "../01-flowlens/flowlens-ctu13-report.md",
+      "source_url": "https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow",
+      "downloaded_range_sha256": "8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b",
+      "input_sha256": "5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a",
+      "input_bytes": 2097038,
+      "records_analyzed": 15313,
+      "record_evidence": "- 분석 흐름: 15,313건",
+      "sample_scope": "원본 bytes 192266059-194363210에서 완전한 행만 추리고 헤더를 붙인 부분 표본",
+      "limitation": "목적 탐색으로 선택한 약 2 MiB 일부 구간이며 전체 capture 비율이나 공격률을 추정하지 않음",
+      "identifiers_redacted": true,
+      "report_sha256": "6345a99a699436df0601853ab9201dc56305c3381c7864f58dce6c5578e56d5f"
+    },
+    {
+      "id": "authsentry-cowrie-prefix",
+      "report_path": "../02-authsentry/authsentry-cowrie-report.md",
+      "source_url": "https://zenodo.org/records/21260400",
+      "downloaded_range_sha256": "eadeb1736a3e36cd2547d2576a0e27f2acda14dd67fd5d946ac476bc45a3cf5a",
+      "input_sha256": "6621c0f4c095fbd558c2366915d82fe15fb4888eebe33f854666a9e95ffc0df9",
+      "input_bytes": 35410664,
+      "records_analyzed": 58334,
+      "record_evidence": "- 세션 집계 레코드: 58,334건",
+      "sample_scope": "원본 session_aggregation.jsonl.gz의 압축 bytes 0-2097151만 해제하고 완전한 JSONL 행만 남긴 prefix 표본",
+      "limitation": "대용량 파일의 2 MiB prefix 표본이며 전체 데이터셋 또는 인터넷 전체를 대표하지 않음; 집계치는 세션 first_seen 날짜에 귀속함",
+      "identifiers_redacted": true,
+      "report_sha256": "b977a77f661fd18e54b829eb9d2e6859e6e19a4812da1c2c1040cc7279889a50"
+    }
+  ]
+}

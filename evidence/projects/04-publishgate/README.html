@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>PublishGate — 공개 증거 패키지 검증기 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/04-publishgate/README.md</span></p>
+    <h1 class="reader-title">PublishGate — 공개 증거 패키지 검증기</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><p>PublishGate는 실제 데이터 분석 보고서와 <code>evidence-manifest.json</code>의 출처·입력 범위·해시·기록 수·해석 한계가 서로 연결되는지 오프라인에서 확인합니다. 보고서가 패키지 내부에 있는지, 내려받은 원본 범위의 SHA-256과 분석기 입력 SHA-256을 보고서에 기록했는지, 보고서 파일 자체의 SHA-256이 manifest와 일치하는지 확인합니다. HTTPS 출처에 자격 증명·query·fragment가 들어가면 거부합니다.</p>
+<h2>실행</h2>
+<p>Python 3.10 이상:</p>
+<pre class="code-block"><code class="language-powershell">python .\publishgate.py .\evidence-manifest.json --output .\publishgate-report.md</code></pre>
+<p><code>evidence-manifest.json</code>은 <a href="../01-flowlens/flowlens-ctu13-report.html">FlowLens 실제 실행 보고서</a>와 <a href="../02-authsentry/authsentry-cowrie-report.html">AuthSentry 실제 실행 보고서</a>의 관찰값과 파일 지문으로 작성했습니다.</p>
+<h2>검사 범위와 한계</h2>
+<p>실제 manifest에 적힌 두 보고서의 무결성과 provenance 필드가 일치하는지 검사합니다. 원본 데이터 다운로드를 다시 하거나 보고서 수치를 원시 데이터에서 독립 재계산하지 않습니다. manifest와 해시는 변경 여부·연결성 확인이지 외부기관의 서명이나 분석의 진실성 증명은 아닙니다. 브라우저에서 공개 주소·접근성·키보드 동작을 확인하지 않습니다.</p>
+<h2>실제 실행 기록</h2>
+<p>실제 보고서 두 개로 수행한 실행, 처음 발견한 인코딩·개행 해시 오류와 수정 후 결과는 <a href="run-notes.html">run-notes.md</a>에 남겼습니다. 통과 결과는 <a href="publishgate-report.html">publishgate-report.md</a>입니다.</p></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

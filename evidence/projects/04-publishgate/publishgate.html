@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 source / python 보기">
+  <title>PublishGate 코드 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>SOURCE / PYTHON <span class="reader-path">evidence/projects/04-publishgate/publishgate.py</span></p>
+    <h1 class="reader-title">PublishGate 코드</h1>
+    <p class="reader-deck">원본 파일을 이 페이지 안에서 확인할 수 있도록 줄 번호와 함께 표시했습니다.</p>
+    <section class="source-panel" aria-label="소스 파일 본문"><div class="source-meta"><span>publishgate.py</span><span>162 lines</span></div><pre class="source-view"><code><span class="code-line"><span class="line-number" aria-hidden="true">001</span><span class="line-content">#!/usr/bin/env python3</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">002</span><span class="line-content">&quot;&quot;&quot;Verify real analysis reports against an evidence and provenance manifest.&quot;&quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">003</span><span class="line-content">from __future__ import annotations</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">004</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">005</span><span class="line-content">import argparse</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">006</span><span class="line-content">import hashlib</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">007</span><span class="line-content">import json</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">008</span><span class="line-content">import re</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">009</span><span class="line-content">import sys</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">010</span><span class="line-content">from pathlib import Path</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">011</span><span class="line-content">from urllib.parse import urlsplit</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">012</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">013</span><span class="line-content">SHA256_RE = re.compile(r&quot;[0-9a-f]{64}\Z&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">014</span><span class="line-content">IPV4_RE = re.compile(r&quot;(?&lt;![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">015</span><span class="line-content">EMAIL_RE = re.compile(r&quot;\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b&quot;, re.IGNORECASE)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">016</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">017</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">018</span><span class="line-content">def nonempty(value: object) -&gt; bool:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">019</span><span class="line-content">    return isinstance(value, str) and bool(value.strip())</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">020</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">021</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">022</span><span class="line-content">def valid_public_url(value: object) -&gt; bool:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">023</span><span class="line-content">    if not nonempty(value):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">024</span><span class="line-content">        return False</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">025</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">026</span><span class="line-content">        parsed = urlsplit(value.strip())</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">027</span><span class="line-content">    except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">028</span><span class="line-content">        return False</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">029</span><span class="line-content">    return parsed.scheme == &quot;https&quot; and bool(parsed.hostname) and not parsed.username and not parsed.password and not parsed.query and not parsed.fragment</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">030</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">031</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">032</span><span class="line-content">def sha256_bytes(raw: bytes) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">033</span><span class="line-content">    return hashlib.sha256(raw).hexdigest()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">034</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">035</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">036</span><span class="line-content">def validate_manifest(manifest_path: Path) -&gt; tuple[list[str], list[str]]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">037</span><span class="line-content">    errors: list[str] = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">038</span><span class="line-content">    passed: list[str] = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">039</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">040</span><span class="line-content">        manifest = json.loads(manifest_path.read_text(encoding=&quot;utf-8-sig&quot;))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">041</span><span class="line-content">    except (OSError, UnicodeError, json.JSONDecodeError):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">042</span><span class="line-content">        return [&quot;manifest를 읽을 수 없거나 유효한 UTF-8 JSON이 아닙니다&quot;], passed</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">043</span><span class="line-content">    if not isinstance(manifest, dict) or manifest.get(&quot;format_version&quot;) != 1:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">044</span><span class="line-content">        return [&quot;manifest format_version 1이 필요합니다&quot;], passed</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">045</span><span class="line-content">    artifacts = manifest.get(&quot;artifacts&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">046</span><span class="line-content">    if not isinstance(artifacts, list) or not artifacts:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">047</span><span class="line-content">        return [&quot;artifacts 목록이 비어 있지 않아야 합니다&quot;], passed</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">048</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">049</span><span class="line-content">    package_root = manifest_path.parent.parent.resolve()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">050</span><span class="line-content">    ids: set[str] = set()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">051</span><span class="line-content">    for number, item in enumerate(artifacts, 1):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">052</span><span class="line-content">        prefix = f&quot;artifacts[{number}]&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">053</span><span class="line-content">        if not isinstance(item, dict):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">054</span><span class="line-content">            errors.append(f&quot;{prefix}: 객체가 필요합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">055</span><span class="line-content">            continue</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">056</span><span class="line-content">        artifact_id = item.get(&quot;id&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">057</span><span class="line-content">        if not nonempty(artifact_id) or artifact_id in ids:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">058</span><span class="line-content">            errors.append(f&quot;{prefix}.id: 중복되지 않는 이름이 필요합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">059</span><span class="line-content">            continue</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">060</span><span class="line-content">        ids.add(artifact_id)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">061</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">062</span><span class="line-content">        relative = item.get(&quot;report_path&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">063</span><span class="line-content">        if not nonempty(relative):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">064</span><span class="line-content">            errors.append(f&quot;{artifact_id}: report_path가 필요합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">065</span><span class="line-content">            continue</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">066</span><span class="line-content">        try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">067</span><span class="line-content">            candidate = manifest_path.parent / relative</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">068</span><span class="line-content">            if candidate.is_symlink():</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">069</span><span class="line-content">                raise ValueError</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">070</span><span class="line-content">            report_path = candidate.resolve(strict=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">071</span><span class="line-content">            report_path.relative_to(package_root)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">072</span><span class="line-content">            if not report_path.is_file():</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">073</span><span class="line-content">                raise ValueError</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">074</span><span class="line-content">            report_raw = report_path.read_bytes()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">075</span><span class="line-content">            report = report_raw.decode(&quot;utf-8&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">076</span><span class="line-content">        except (OSError, UnicodeError, ValueError):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">077</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서가 패키지 안에 없거나 읽을 수 없습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">078</span><span class="line-content">            continue</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">079</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">080</span><span class="line-content">        expected_report_hash = item.get(&quot;report_sha256&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">081</span><span class="line-content">        expected_input_hash = item.get(&quot;input_sha256&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">082</span><span class="line-content">        downloaded_hash = item.get(&quot;downloaded_range_sha256&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">083</span><span class="line-content">        if not isinstance(expected_report_hash, str) or not SHA256_RE.fullmatch(expected_report_hash):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">084</span><span class="line-content">            errors.append(f&quot;{artifact_id}: report_sha256 형식이 올바르지 않습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">085</span><span class="line-content">        elif sha256_bytes(report_raw) != expected_report_hash:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">086</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 공개 보고서 SHA-256이 manifest와 다릅니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">087</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">088</span><span class="line-content">        if not isinstance(expected_input_hash, str) or not SHA256_RE.fullmatch(expected_input_hash):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">089</span><span class="line-content">            errors.append(f&quot;{artifact_id}: input_sha256 형식이 올바르지 않습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">090</span><span class="line-content">        elif f&quot;입력 파일 SHA-256: `{expected_input_hash}`&quot; not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">091</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서에서 입력 파일 SHA-256을 확인할 수 없습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">092</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">093</span><span class="line-content">        if not isinstance(downloaded_hash, str) or not SHA256_RE.fullmatch(downloaded_hash):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">094</span><span class="line-content">            errors.append(f&quot;{artifact_id}: downloaded_range_sha256 형식이 올바르지 않습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">095</span><span class="line-content">        elif f&quot;내려받은 원본 구간 SHA-256: `{downloaded_hash}`&quot; not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">096</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서에서 내려받은 원본 구간 지문을 확인할 수 없습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">097</span><span class="line-content">        if not valid_public_url(item.get(&quot;source_url&quot;)):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">098</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 출처는 자격 증명·query·fragment가 없는 공개 HTTPS URL이어야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">099</span><span class="line-content">        elif item[&quot;source_url&quot;] not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">100</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서에 manifest의 공개 출처가 없습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">101</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">102</span><span class="line-content">        sample_scope = item.get(&quot;sample_scope&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">103</span><span class="line-content">        if not nonempty(sample_scope) or sample_scope not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">104</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 실제 표본 범위가 보고서와 연결되어야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">105</span><span class="line-content">        limitation = item.get(&quot;limitation&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">106</span><span class="line-content">        if not nonempty(limitation) or f&quot;표본 한계: {limitation}&quot; not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">107</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서와 manifest에 같은 해석 한계가 있어야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">108</span><span class="line-content">        if type(item.get(&quot;records_analyzed&quot;)) is not int or item[&quot;records_analyzed&quot;] &lt; 1:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">109</span><span class="line-content">            errors.append(f&quot;{artifact_id}: records_analyzed는 양의 정수여야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">110</span><span class="line-content">        elif not nonempty(item.get(&quot;record_evidence&quot;)) or item[&quot;record_evidence&quot;] not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">111</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서의 기록 수 근거 문장이 필요합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">112</span><span class="line-content">        else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">113</span><span class="line-content">            count_line = re.fullmatch(r&quot;- (?:분석 흐름|세션 집계 레코드): ([0-9]+(?:,[0-9]{3})*)건&quot;, item[&quot;record_evidence&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">114</span><span class="line-content">            if not count_line or int(count_line.group(1).replace(&quot;,&quot;, &quot;&quot;)) != item[&quot;records_analyzed&quot;]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">115</span><span class="line-content">                errors.append(f&quot;{artifact_id}: records_analyzed와 보고서 기록 수가 다릅니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">116</span><span class="line-content">        if type(item.get(&quot;input_bytes&quot;)) is not int or item[&quot;input_bytes&quot;] &lt; 1:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">117</span><span class="line-content">            errors.append(f&quot;{artifact_id}: input_bytes는 양의 정수여야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">118</span><span class="line-content">        elif f&quot;입력 파일 크기: {item[&#x27;input_bytes&#x27;]:,} bytes&quot; not in report:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">119</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서 입력 크기와 manifest가 다릅니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">120</span><span class="line-content">        if item.get(&quot;identifiers_redacted&quot;) is not True:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">121</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 식별자 비식별화 확인이 필요합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">122</span><span class="line-content">        if IPV4_RE.search(report) or EMAIL_RE.search(report):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">123</span><span class="line-content">            errors.append(f&quot;{artifact_id}: 보고서에 원문 IPv4 또는 이메일처럼 보이는 값이 있습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">124</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">125</span><span class="line-content">        artifact_errors = [error for error in errors if error.startswith(f&quot;{artifact_id}:&quot;)]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">126</span><span class="line-content">        if not artifact_errors:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">127</span><span class="line-content">            passed.append(f&quot;{artifact_id}: 보고서 해시·입력 지문·출처·표본 범위·비식별화 통과 ({item[&#x27;records_analyzed&#x27;]:,}건)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">128</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">129</span><span class="line-content">    return errors, passed</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">130</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">131</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">132</span><span class="line-content">def main(argv: list[str] | None = None) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">133</span><span class="line-content">    parser = argparse.ArgumentParser(description=&quot;실제 분석 결과의 파일 무결성과 출처·범위·비식별화 정보를 확인합니다.&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">134</span><span class="line-content">    parser.add_argument(&quot;manifest&quot;, type=Path, help=&quot;evidence manifest JSON&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">135</span><span class="line-content">    parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, type=Path, help=&quot;확인 결과 Markdown 저장 경로 (선택)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">136</span><span class="line-content">    args = parser.parse_args(argv)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">137</span><span class="line-content">    errors, passed = validate_manifest(args.manifest)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">138</span><span class="line-content">    lines = [&quot;# PublishGate - 실제 증거 패키지 확인&quot;, &quot;&quot;]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">139</span><span class="line-content">    for item in passed:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">140</span><span class="line-content">        lines.append(f&quot;- PASS: {item}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">141</span><span class="line-content">    for item in errors:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">142</span><span class="line-content">        lines.append(f&quot;- FAIL: {item}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">143</span><span class="line-content">    if errors:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">144</span><span class="line-content">        lines.extend([&quot;&quot;, f&quot;결과: FAIL ({len(errors)}개 확인 항목)&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">145</span><span class="line-content">        exit_code = 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">146</span><span class="line-content">    else:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">147</span><span class="line-content">        lines.extend([&quot;&quot;, f&quot;결과: PASS ({len(passed)}개 보고서 확인)&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">148</span><span class="line-content">        exit_code = 0</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">149</span><span class="line-content">    report = &quot;\n&quot;.join(lines) + &quot;\n&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">150</span><span class="line-content">    print(report, end=&quot;&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">151</span><span class="line-content">    if args.output:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">152</span><span class="line-content">        try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">153</span><span class="line-content">            args.output.parent.mkdir(parents=True, exist_ok=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">154</span><span class="line-content">            args.output.write_text(report, encoding=&quot;utf-8&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">155</span><span class="line-content">        except OSError as exc:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">156</span><span class="line-content">            print(f&quot;PublishGate 오류: 결과를 저장할 수 없습니다 ({exc})&quot;, file=sys.stderr)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">157</span><span class="line-content">            return 2</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">158</span><span class="line-content">    return exit_code</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">159</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">160</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">161</span><span class="line-content">if __name__ == &quot;__main__&quot;:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">162</span><span class="line-content">    raise SystemExit(main())</span></span></code></pre></section>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>줄 번호는 화면에서 읽기 위한 표시입니다. 실제 분석 코드는 아래 원문 그대로입니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
