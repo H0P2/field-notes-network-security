@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>AuthSentry — Cowrie 인증 세션 요약 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/02-authsentry/authsentry-cowrie-report.md</span></p>
+    <h1 class="reader-title">AuthSentry — Cowrie 인증 세션 요약</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><h2>데이터 요약</h2>
+<ul><li>세션 집계 레코드: 58,334건</li><li>실패 로그인 이벤트 합계: 53,602건</li><li>성공 로그인 이벤트 합계: 4,645건</li><li>관측된 source 수: 6,511개</li><li>제외된 레코드: 0건</li><li>입력 파일 크기: 35,410,664 bytes</li><li>입력 파일 SHA-256: <code>6621c0f4c095fbd558c2366915d82fe15fb4888eebe33f854666a9e95ffc0df9</code></li><li>원본 출처: <a href="https://zenodo.org/records/21260400" target="_blank" rel="noopener noreferrer">https://zenodo.org/records/21260400</a></li><li>내려받은 원본 구간 SHA-256: <code>eadeb1736a3e36cd2547d2576a0e27f2acda14dd67fd5d946ac476bc45a3cf5a</code></li><li>입력 구간: 원본 session_aggregation.jsonl.gz의 압축 bytes 0-2097151만 해제하고 완전한 JSONL 행만 남긴 prefix 표본</li><li>표본 한계: 대용량 파일의 2 MiB prefix 표본이며 전체 데이터셋 또는 인터넷 전체를 대표하지 않음; 집계치는 세션 first_seen 날짜에 귀속함</li><li>사용자명·비밀번호 열: 읽지 않음</li><li>source 표시: 보고서별 별칭만 출력</li></ul>
+<h2>날짜별 로그인 이벤트</h2>
+<p>이 데이터는 세션 단위 집계이므로 한 세션의 로그인 이벤트를 <code>first_seen</code> 날짜에 귀속했습니다.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">first_seen 날짜</th><th scope="col">실패 로그인</th><th scope="col">성공 로그인</th></tr></thead><tbody><tr><td>2025-07-20</td><td>7,891</td><td>553</td></tr><tr><td>2025-07-23</td><td>7,766</td><td>494</td></tr><tr><td>2025-07-10</td><td>7,637</td><td>527</td></tr><tr><td>2025-07-17</td><td>7,620</td><td>604</td></tr><tr><td>2025-08-14</td><td>7,224</td><td>484</td></tr><tr><td>2025-07-02</td><td>2,965</td><td>294</td></tr><tr><td>2025-06-29</td><td>2,380</td><td>279</td></tr><tr><td>2025-06-28</td><td>2,289</td><td>358</td></tr><tr><td>2025-06-30</td><td>2,250</td><td>235</td></tr><tr><td>2025-07-01</td><td>2,031</td><td>280</td></tr><tr><td>2025-07-03</td><td>1,456</td><td>116</td></tr><tr><td>2025-06-27</td><td>1,231</td><td>303</td></tr><tr><td>2025-08-11</td><td>862</td><td>118</td></tr></tbody></table></div>
+<h2>실패 로그인 상위 source·날짜 조합</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">source 별칭</th><th scope="col">날짜</th><th scope="col">실패 로그인</th></tr></thead><tbody><tr><td>source-02</td><td>2025-07-23</td><td>1,958</td></tr><tr><td>source-05</td><td>2025-07-20</td><td>911</td></tr><tr><td>source-06</td><td>2025-08-14</td><td>719</td></tr><tr><td>source-07</td><td>2025-08-14</td><td>604</td></tr><tr><td>source-09</td><td>2025-07-23</td><td>547</td></tr><tr><td>source-12</td><td>2025-07-20</td><td>523</td></tr><tr><td>source-13</td><td>2025-07-20</td><td>510</td></tr><tr><td>source-14</td><td>2025-07-17</td><td>491</td></tr><tr><td>source-03</td><td>2025-07-17</td><td>385</td></tr><tr><td>source-16</td><td>2025-07-17</td><td>350</td></tr><tr><td>source-17</td><td>2025-07-23</td><td>348</td></tr><tr><td>source-01</td><td>2025-07-17</td><td>347</td></tr><tr><td>source-01</td><td>2025-07-10</td><td>342</td></tr><tr><td>source-01</td><td>2025-07-20</td><td>334</td></tr><tr><td>source-01</td><td>2025-07-23</td><td>316</td></tr><tr><td>source-18</td><td>2025-07-10</td><td>304</td></tr><tr><td>source-19</td><td>2025-08-14</td><td>302</td></tr><tr><td>source-20</td><td>2025-08-14</td><td>300</td></tr><tr><td>source-21</td><td>2025-07-10</td><td>295</td></tr><tr><td>source-22</td><td>2025-07-23</td><td>282</td></tr></tbody></table></div>
+<blockquote><p>이것은 Cowrie honeypot에서 관측된 unsolicited SSH 상호작용의 집계입니다. 실제 인터넷 전체의 공격률을 대표하지 않습니다. <code>first_seen</code> 날짜로 세션 집계치를 묶은 요약이며, 개별 로그인 시각이나 사용자명별 password-spray를 판정하지 않습니다. 보고서에는 source 원문, 사용자명, 비밀번호를 내보내지 않습니다.</p></blockquote></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

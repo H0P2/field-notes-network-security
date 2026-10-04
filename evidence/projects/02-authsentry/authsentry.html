@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 source / python 보기">
+  <title>AuthSentry 코드 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>SOURCE / PYTHON <span class="reader-path">evidence/projects/02-authsentry/authsentry.py</span></p>
+    <h1 class="reader-title">AuthSentry 코드</h1>
+    <p class="reader-deck">원본 파일을 이 페이지 안에서 확인할 수 있도록 줄 번호와 함께 표시했습니다.</p>
+    <section class="source-panel" aria-label="소스 파일 본문"><div class="source-meta"><span>authsentry.py</span><span>205 lines</span></div><pre class="source-view"><code><span class="code-line"><span class="line-number" aria-hidden="true">001</span><span class="line-content">#!/usr/bin/env python3</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">002</span><span class="line-content">&quot;&quot;&quot;Summarize real Cowrie session aggregates without exposing identifiers or credentials.&quot;&quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">003</span><span class="line-content">from __future__ import annotations</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">004</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">005</span><span class="line-content">import argparse</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">006</span><span class="line-content">import csv</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">007</span><span class="line-content">import gzip</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">008</span><span class="line-content">import hashlib</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">009</span><span class="line-content">import json</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">010</span><span class="line-content">import sys</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">011</span><span class="line-content">from collections import Counter</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">012</span><span class="line-content">from dataclasses import dataclass</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">013</span><span class="line-content">from datetime import date, datetime</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">014</span><span class="line-content">from pathlib import Path</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">015</span><span class="line-content">from typing import TextIO</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">016</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">017</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">018</span><span class="line-content">@dataclass(frozen=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">019</span><span class="line-content">class SessionSummary:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">020</span><span class="line-content">    first_seen_day: date</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">021</span><span class="line-content">    source: str</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">022</span><span class="line-content">    failed_logins: int</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">023</span><span class="line-content">    successful_logins: int</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">024</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">025</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">026</span><span class="line-content">def parse_count(value: object, field: str) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">027</span><span class="line-content">    if type(value) is not int and not (isinstance(value, str) and value.strip().isascii() and value.strip().isdigit()):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">028</span><span class="line-content">        raise ValueError(f&quot;{field} must be a non-negative integer&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">029</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">030</span><span class="line-content">        result = int(value)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">031</span><span class="line-content">    except (TypeError, ValueError):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">032</span><span class="line-content">        raise ValueError(f&quot;{field} must be a non-negative integer&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">033</span><span class="line-content">    if result &lt; 0:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">034</span><span class="line-content">        raise ValueError(f&quot;{field} must be a non-negative integer&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">035</span><span class="line-content">    return result</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">036</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">037</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">038</span><span class="line-content">def parse_first_seen(value: object) -&gt; date:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">039</span><span class="line-content">    if not isinstance(value, str):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">040</span><span class="line-content">        raise ValueError(&quot;first_seen must be a timestamp string&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">041</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">042</span><span class="line-content">        return datetime.fromisoformat(value.strip().replace(&quot;Z&quot;, &quot;+00:00&quot;)).date()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">043</span><span class="line-content">    except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">044</span><span class="line-content">        raise ValueError(&quot;first_seen must be an ISO timestamp&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">045</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">046</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">047</span><span class="line-content">def open_text(path: Path) -&gt; TextIO:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">048</span><span class="line-content">    if path.name.lower().endswith(&quot;.gz&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">049</span><span class="line-content">        return gzip.open(path, &quot;rt&quot;, encoding=&quot;utf-8-sig&quot;, newline=&quot;&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">050</span><span class="line-content">    return path.open(&quot;r&quot;, encoding=&quot;utf-8-sig&quot;, newline=&quot;&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">051</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">052</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">053</span><span class="line-content">def load_cowrie_jsonl(path: Path) -&gt; tuple[list[SessionSummary], list[int]]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">054</span><span class="line-content">    sessions: list[SessionSummary] = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">055</span><span class="line-content">    invalid: list[int] = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">056</span><span class="line-content">    with open_text(path) as handle:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">057</span><span class="line-content">        for line_number, line in enumerate(handle, 1):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">058</span><span class="line-content">            if not line.strip():</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">059</span><span class="line-content">                continue</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">060</span><span class="line-content">            try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">061</span><span class="line-content">                record = json.loads(line)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">062</span><span class="line-content">                if not isinstance(record, dict):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">063</span><span class="line-content">                    raise ValueError(&quot;record must be an object&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">064</span><span class="line-content">                source = record.get(&quot;src_ip&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">065</span><span class="line-content">                if not isinstance(source, str) or not source.strip():</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">066</span><span class="line-content">                    raise ValueError(&quot;src_ip is required&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">067</span><span class="line-content">                sessions.append(SessionSummary(</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">068</span><span class="line-content">                    first_seen_day=parse_first_seen(record.get(&quot;first_seen&quot;)),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">069</span><span class="line-content">                    source=source.strip(),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">070</span><span class="line-content">                    failed_logins=parse_count(record.get(&quot;cnt_login_failed&quot;, 0), &quot;cnt_login_failed&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">071</span><span class="line-content">                    successful_logins=parse_count(record.get(&quot;cnt_login_success&quot;, 0), &quot;cnt_login_success&quot;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">072</span><span class="line-content">                ))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">073</span><span class="line-content">            except (json.JSONDecodeError, ValueError):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">074</span><span class="line-content">                invalid.append(line_number)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">075</span><span class="line-content">    return sessions, invalid</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">076</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">077</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">078</span><span class="line-content">def source_aliases(sessions: list[SessionSummary]) -&gt; dict[str, str]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">079</span><span class="line-content">    totals: Counter[str] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">080</span><span class="line-content">    for session in sessions:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">081</span><span class="line-content">        totals[session.source] += session.failed_logins</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">082</span><span class="line-content">    ordered = sorted(totals.items(), key=lambda item: (-item[1], item[0]))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">083</span><span class="line-content">    return {source: f&quot;source-{number:02d}&quot; for number, (source, _) in enumerate(ordered, 1)}</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">084</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">085</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">086</span><span class="line-content">def make_report(sessions: list[SessionSummary], invalid: list[int], top: int, input_bytes: int, input_sha256: str, source_url: str | None, source_range_sha256: str | None, sample_note: str | None, limitation: str | None) -&gt; str:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">087</span><span class="line-content">    failed_by_day: Counter[date] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">088</span><span class="line-content">    successful_by_day: Counter[date] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">089</span><span class="line-content">    failures_by_source_day: Counter[tuple[str, date]] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">090</span><span class="line-content">    failures_by_source: Counter[str] = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">091</span><span class="line-content">    for session in sessions:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">092</span><span class="line-content">        failed_by_day[session.first_seen_day] += session.failed_logins</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">093</span><span class="line-content">        successful_by_day[session.first_seen_day] += session.successful_logins</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">094</span><span class="line-content">        failures_by_source_day[(session.source, session.first_seen_day)] += session.failed_logins</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">095</span><span class="line-content">        failures_by_source[session.source] += session.failed_logins</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">096</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">097</span><span class="line-content">    aliases = source_aliases(sessions)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">098</span><span class="line-content">    source_days = sorted(</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">099</span><span class="line-content">        ((source, day, count) for (source, day), count in failures_by_source_day.items() if count),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">100</span><span class="line-content">        key=lambda row: (-row[2], row[1], aliases[row[0]]),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">101</span><span class="line-content">    )</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">102</span><span class="line-content">    days = sorted(failed_by_day, key=lambda day: (-failed_by_day[day], day))[:top]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">103</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">104</span><span class="line-content">    lines = [</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">105</span><span class="line-content">        &quot;# AuthSentry — Cowrie 인증 세션 요약&quot;, &quot;&quot;, &quot;## 데이터 요약&quot;, &quot;&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">106</span><span class="line-content">        f&quot;- 세션 집계 레코드: {len(sessions):,}건&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">107</span><span class="line-content">        f&quot;- 실패 로그인 이벤트 합계: {sum(failed_by_day.values()):,}건&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">108</span><span class="line-content">        f&quot;- 성공 로그인 이벤트 합계: {sum(successful_by_day.values()):,}건&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">109</span><span class="line-content">        f&quot;- 관측된 source 수: {len(failures_by_source):,}개&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">110</span><span class="line-content">        f&quot;- 제외된 레코드: {len(invalid):,}건&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">111</span><span class="line-content">        f&quot;- 입력 파일 크기: {input_bytes:,} bytes&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">112</span><span class="line-content">        f&quot;- 입력 파일 SHA-256: `{input_sha256}`&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">113</span><span class="line-content">    ]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">114</span><span class="line-content">    if source_url:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">115</span><span class="line-content">        lines.append(f&quot;- 원본 출처: {source_url}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">116</span><span class="line-content">    if source_range_sha256:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">117</span><span class="line-content">        lines.append(f&quot;- 내려받은 원본 구간 SHA-256: `{source_range_sha256}`&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">118</span><span class="line-content">    if sample_note:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">119</span><span class="line-content">        lines.append(f&quot;- 입력 구간: {sample_note}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">120</span><span class="line-content">    if limitation:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">121</span><span class="line-content">        lines.append(f&quot;- 표본 한계: {limitation}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">122</span><span class="line-content">    lines.extend([</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">123</span><span class="line-content">        &quot;- 사용자명·비밀번호 열: 읽지 않음&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">124</span><span class="line-content">        &quot;- source 표시: 보고서별 별칭만 출력&quot;, &quot;&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">125</span><span class="line-content">        &quot;## 날짜별 로그인 이벤트&quot;, &quot;&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">126</span><span class="line-content">        &quot;이 데이터는 세션 단위 집계이므로 한 세션의 로그인 이벤트를 `first_seen` 날짜에 귀속했습니다.&quot;, &quot;&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">127</span><span class="line-content">        &quot;| first_seen 날짜 | 실패 로그인 | 성공 로그인 |&quot;, &quot;| --- | ---: | ---: |&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">128</span><span class="line-content">    ])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">129</span><span class="line-content">    for day in days:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">130</span><span class="line-content">        lines.append(f&quot;| {day.isoformat()} | {failed_by_day[day]:,} | {successful_by_day[day]:,} |&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">131</span><span class="line-content">    if not days:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">132</span><span class="line-content">        lines.append(&quot;| 로그인 이벤트 없음 | 0 | 0 |&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">133</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">134</span><span class="line-content">    lines.extend([&quot;&quot;, &quot;## 실패 로그인 상위 source·날짜 조합&quot;, &quot;&quot;, &quot;| source 별칭 | 날짜 | 실패 로그인 |&quot;, &quot;| --- | --- | ---: |&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">135</span><span class="line-content">    for source, day, count in source_days[:top]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">136</span><span class="line-content">        lines.append(f&quot;| {aliases[source]} | {day.isoformat()} | {count:,} |&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">137</span><span class="line-content">    if not source_days:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">138</span><span class="line-content">        lines.append(&quot;| 실패 로그인 없음 | — | 0 |&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">139</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">140</span><span class="line-content">    if invalid:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">141</span><span class="line-content">        examples = &quot;, &quot;.join(str(number) for number in invalid[:10])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">142</span><span class="line-content">        if len(invalid) &gt; 10:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">143</span><span class="line-content">            examples += &quot; …&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">144</span><span class="line-content">        lines.extend([&quot;&quot;, f&quot;잘못된 레코드는 건너뛰었습니다. 행 번호(최대 10개): {examples}&quot;])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">145</span><span class="line-content">    lines.extend([</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">146</span><span class="line-content">        &quot;&quot;, &quot;&gt; 이것은 Cowrie honeypot에서 관측된 unsolicited SSH 상호작용의 집계입니다. 실제 인터넷 전체의 공격률을 대표하지 않습니다.&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">147</span><span class="line-content">        &quot;&gt; `first_seen` 날짜로 세션 집계치를 묶은 요약이며, 개별 로그인 시각이나 사용자명별 password-spray를 판정하지 않습니다.&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">148</span><span class="line-content">        &quot;&gt; 보고서에는 source 원문, 사용자명, 비밀번호를 내보내지 않습니다.&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">149</span><span class="line-content">    ])</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">150</span><span class="line-content">    return &quot;\n&quot;.join(lines) + &quot;\n&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">151</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">152</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">153</span><span class="line-content">def positive_int(value: str) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">154</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">155</span><span class="line-content">        number = int(value)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">156</span><span class="line-content">    except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">157</span><span class="line-content">        raise argparse.ArgumentTypeError(&quot;양의 정수를 입력하세요&quot;) from None</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">158</span><span class="line-content">    if number &lt; 1:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">159</span><span class="line-content">        raise argparse.ArgumentTypeError(&quot;양의 정수를 입력하세요&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">160</span><span class="line-content">    return number</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">161</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">162</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">163</span><span class="line-content">def input_fingerprint(path: Path) -&gt; tuple[int, str]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">164</span><span class="line-content">    digest = hashlib.sha256()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">165</span><span class="line-content">    size = 0</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">166</span><span class="line-content">    with path.open(&quot;rb&quot;) as handle:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">167</span><span class="line-content">        for chunk in iter(lambda: handle.read(1024 * 1024), b&quot;&quot;):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">168</span><span class="line-content">            digest.update(chunk)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">169</span><span class="line-content">            size += len(chunk)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">170</span><span class="line-content">    return size, digest.hexdigest()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">171</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">172</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">173</span><span class="line-content">def main(argv: list[str] | None = None) -&gt; int:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">174</span><span class="line-content">    parser = argparse.ArgumentParser(description=&quot;Cowrie JSONL session aggregation을 로컬에서 요약합니다.&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">175</span><span class="line-content">    parser.add_argument(&quot;input&quot;, type=Path, help=&quot;session_aggregation.jsonl 또는 .jsonl.gz&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">176</span><span class="line-content">    parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, type=Path, help=&quot;보고서 경로 (기본값: 입력 파일 옆 authsentry-report.md)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">177</span><span class="line-content">    parser.add_argument(&quot;--top&quot;, type=positive_int, default=20, help=&quot;표에 표시할 최대 행 수 (기본값: 20)&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">178</span><span class="line-content">    parser.add_argument(&quot;--source-url&quot;, help=&quot;입력 원본의 공개 출처 URL&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">179</span><span class="line-content">    parser.add_argument(&quot;--source-range-sha256&quot;, help=&quot;내려받은 원본 바이트 구간의 SHA-256&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">180</span><span class="line-content">    parser.add_argument(&quot;--sample-note&quot;, help=&quot;입력한 실제 표본의 범위와 변환 설명&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">181</span><span class="line-content">    parser.add_argument(&quot;--limitation&quot;, help=&quot;결과를 과대해석하지 않도록 표본/자료의 한계 설명&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">182</span><span class="line-content">    args = parser.parse_args(argv)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">183</span><span class="line-content">    if args.top &gt; 100:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">184</span><span class="line-content">        parser.error(&quot;--top은 100 이하여야 합니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">185</span><span class="line-content">    output = args.output or args.input.with_name(&quot;authsentry-report.md&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">186</span><span class="line-content">    try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">187</span><span class="line-content">        sessions, invalid = load_cowrie_jsonl(args.input)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">188</span><span class="line-content">        if not sessions:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">189</span><span class="line-content">            raise ValueError(&quot;분석할 유효한 세션 집계가 없습니다&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">190</span><span class="line-content">        input_bytes, input_sha256 = input_fingerprint(args.input)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">191</span><span class="line-content">        report = make_report(sessions, invalid, args.top, input_bytes, input_sha256, args.source_url, args.source_range_sha256, args.sample_note, args.limitation)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">192</span><span class="line-content">        output.parent.mkdir(parents=True, exist_ok=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">193</span><span class="line-content">        output.write_text(report, encoding=&quot;utf-8&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">194</span><span class="line-content">    except (OSError, UnicodeError, gzip.BadGzipFile, ValueError) as exc:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">195</span><span class="line-content">        print(f&quot;AuthSentry 오류: {exc}&quot;, file=sys.stderr)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">196</span><span class="line-content">        return 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">197</span><span class="line-content">    print(f&quot;보고서 저장: {output}&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">198</span><span class="line-content">    if invalid:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">199</span><span class="line-content">        print(f&quot;주의: 잘못된 레코드 {len(invalid)}개를 제외했습니다.&quot;, file=sys.stderr)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">200</span><span class="line-content">        return 2</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">201</span><span class="line-content">    return 0</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">202</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">203</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">204</span><span class="line-content">if __name__ == &quot;__main__&quot;:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">205</span><span class="line-content">    raise SystemExit(main())</span></span></code></pre></section>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>줄 번호는 화면에서 읽기 위한 표시입니다. 실제 분석 코드는 아래 원문 그대로입니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
