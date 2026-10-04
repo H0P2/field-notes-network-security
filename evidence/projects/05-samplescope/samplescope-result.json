@@ -1,0 +1,87 @@
+{
+  "source_url": "https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow",
+  "method": "Preserved non-random byte slices; direct CSV versus FlowLens parsing",
+  "limitation": "Three selected byte ranges are not random samples and do not estimate population attack prevalence.",
+  "total_records": 46023,
+  "segments": [
+    {
+      "segment": "prefix",
+      "label": "시작",
+      "byte_range": "0-2097151",
+      "records": 15279,
+      "flowlens_excluded": 1,
+      "excluded_protocols": {
+        "IPX/SPX": 1
+      },
+      "flowlens_records": 15278,
+      "protocols": {
+        "ARP": 12,
+        "ICMP": 257,
+        "IGMP": 9,
+        "IPX/SPX": 1,
+        "PIM": 1,
+        "RTCP": 9,
+        "RTP": 30,
+        "TCP": 2843,
+        "UDP": 12117
+      },
+      "from_botnet": 0,
+      "from_botnet_pct": 0.0,
+      "total_bytes": 826730114,
+      "input_sha256": "3d17d15668f7ea26e31844ae531ef2ef9f702054df46e8999eda5e994fb8943d",
+      "raw_sha256": "2d0af0c7ff129bb2fefe18a74ba81828f4ee4640cb45982e28171af1dae2141d",
+      "derived_rows_match_raw": true,
+      "parser_crosscheck": true
+    },
+    {
+      "segment": "mid",
+      "label": "중간",
+      "byte_range": "192266059-194363210",
+      "records": 15313,
+      "flowlens_excluded": 0,
+      "excluded_protocols": {},
+      "flowlens_records": 15313,
+      "protocols": {
+        "ARP": 8,
+        "ICMP": 172,
+        "IGMP": 10,
+        "RTCP": 14,
+        "RTP": 21,
+        "TCP": 2360,
+        "UDP": 12728
+      },
+      "from_botnet": 128,
+      "from_botnet_pct": 0.8359,
+      "total_bytes": 157353488,
+      "input_sha256": "5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a",
+      "raw_sha256": "8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b",
+      "derived_rows_match_raw": true,
+      "parser_crosscheck": true
+    },
+    {
+      "segment": "tail",
+      "label": "끝",
+      "byte_range": "384532119-386629270",
+      "records": 15431,
+      "flowlens_excluded": 0,
+      "excluded_protocols": {},
+      "flowlens_records": 15431,
+      "protocols": {
+        "ARP": 8,
+        "ICMP": 193,
+        "IGMP": 10,
+        "IPV6-ICMP": 1,
+        "RTCP": 12,
+        "TCP": 2202,
+        "UDP": 13005
+      },
+      "from_botnet": 0,
+      "from_botnet_pct": 0.0,
+      "total_bytes": 42520608,
+      "input_sha256": "7075821a9c23bfbd37b33b5cfa884f78dc368ea384c7a2394ccb3a0f9793edd0",
+      "raw_sha256": "9d98509776c3d7f4f89f82cb990355e57492de80977f087207a66347df9f8add",
+      "derived_rows_match_raw": true,
+      "parser_crosscheck": true
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>SampleScope — 표본 위치에 따른 네트워크 흐름 비교 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/05-samplescope/samplescope-report.md</span></p>
+    <h1 class="reader-title">SampleScope — 표본 위치에 따른 네트워크 흐름 비교</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><p>실행일: 2026-10-02 (한국 시간). 기존에 보관한 실제 CTU-13 세 바이트 구간을 재사용했습니다. 원본 출처: <a href="https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow" target="_blank" rel="noopener noreferrer">https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow</a></p>
+<h2>실제 결과</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">구간</th><th scope="col">흐름</th><th scope="col">UDP</th><th scope="col">TCP</th><th scope="col">From-Botnet 라벨</th><th scope="col">라벨 비율</th></tr></thead><tbody><tr><td>시작</td><td>15,279</td><td>12,117</td><td>2,843</td><td>0</td><td>0.0000%</td></tr><tr><td>중간</td><td>15,313</td><td>12,728</td><td>2,360</td><td>128</td><td>0.8359%</td></tr><tr><td>끝</td><td>15,431</td><td>13,005</td><td>2,202</td><td>0</td><td>0.0000%</td></tr></tbody></table></div>
+<p>세 구간 합계: 46,023행. 세 구간 모두 원본 구간 해시 일치, 분석 입력의 각 행이 원본 구간의 연속된 완전한 행과 일치, IPv4/IPv6 범위에서 FlowLens 파서와 CSV 별도 집계 일치.</p>
+<h2>재현 방법</h2>
+<p>Python 3.10 이상에서 보관된 입력 6개를 포함한 폴더를 지정합니다.</p>
+<p><code>python samplescope.py --work &lt;원본-보관-폴더&gt; --output &lt;결과-폴더&gt;</code></p>
+<p>원시 자료는 공개 사이트에 포함하지 않습니다. 동일 입력이 있어야 재실행할 수 있습니다.</p>
+<h2>검사 중 발견한 차이</h2>
+<p>시작 구간 CSV는 15,279행입니다. IPX/SPX 1행의 주소가 IPv4/IPv6 형식이 아니므로 FlowLens는 이를 제외해 15,278행을 분석합니다. SampleScope 원본 분포에는 이 1행을 포함하며, 교차 확인은 IPv4/IPv6 주소가 있는 행에 한정합니다. 중간·끝 구간은 제외 행이 없습니다.</p>
+<h2>판단과 제한</h2>
+<p>중간 구간에서만 From-Botnet 발신 라벨이 관측되었습니다. 구간 선택에 따라 관측값이 달라진다는 근거이며, 0건인 구간을 안전하다고 판정할 수 없습니다. 세 구간은 과거 목적 탐색에서 선택한 비무작위 바이트 구간입니다. 독립 확률 표본, 전체 공격률 추정, 탐지 성능 평가가 아닙니다. From-Botnet은 제공자 라벨이며 이 프로젝트에서 새로 탐지한 공격이 아닙니다. 모든 구현·집계는 AI가 수행했으며 사용자 본인의 실습 성과로 주장하지 않습니다. CSV 별도 집계와 FlowLens 파서를 비교했습니다. 구현 경로가 다른 교차 확인이며 제3자 감사가 아닙니다.</p>
+<h2>입력 지문</h2>
+<h3>시작</h3>
+<ul><li>원본 bytes: 0-2097151</li><li>원본 구간 SHA-256: <code>2d0af0c7ff129bb2fefe18a74ba81828f4ee4640cb45982e28171af1dae2141d</code></li><li>분석 입력 SHA-256: <code>3d17d15668f7ea26e31844ae531ef2ef9f702054df46e8999eda5e994fb8943d</code></li></ul>
+<h3>중간</h3>
+<ul><li>원본 bytes: 192266059-194363210</li><li>원본 구간 SHA-256: <code>8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b</code></li><li>분석 입력 SHA-256: <code>5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a</code></li></ul>
+<h3>끝</h3>
+<ul><li>원본 bytes: 384532119-386629270</li><li>원본 구간 SHA-256: <code>9d98509776c3d7f4f89f82cb990355e57492de80977f087207a66347df9f8add</code></li><li>분석 입력 SHA-256: <code>7075821a9c23bfbd37b33b5cfa884f78dc368ea384c7a2394ccb3a0f9793edd0</code></li></ul></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 source / json 보기">
+  <title>Samplescope Result — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>SOURCE / JSON <span class="reader-path">evidence/projects/05-samplescope/samplescope-result.json</span></p>
+    <h1 class="reader-title">Samplescope Result</h1>
+    <p class="reader-deck">원본 파일을 이 페이지 안에서 확인할 수 있도록 줄 번호와 함께 표시했습니다.</p>
+    <section class="source-panel" aria-label="소스 파일 본문"><div class="source-meta"><span>samplescope-result.json</span><span>87 lines</span></div><pre class="source-view"><code><span class="code-line"><span class="line-number" aria-hidden="true">001</span><span class="line-content">{</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">002</span><span class="line-content">  &quot;source_url&quot;: &quot;https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">003</span><span class="line-content">  &quot;method&quot;: &quot;Preserved non-random byte slices; direct CSV versus FlowLens parsing&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">004</span><span class="line-content">  &quot;limitation&quot;: &quot;Three selected byte ranges are not random samples and do not estimate population attack prevalence.&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">005</span><span class="line-content">  &quot;total_records&quot;: 46023,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">006</span><span class="line-content">  &quot;segments&quot;: [</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">007</span><span class="line-content">    {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">008</span><span class="line-content">      &quot;segment&quot;: &quot;prefix&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">009</span><span class="line-content">      &quot;label&quot;: &quot;시작&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">010</span><span class="line-content">      &quot;byte_range&quot;: &quot;0-2097151&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">011</span><span class="line-content">      &quot;records&quot;: 15279,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">012</span><span class="line-content">      &quot;flowlens_excluded&quot;: 1,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">013</span><span class="line-content">      &quot;excluded_protocols&quot;: {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">014</span><span class="line-content">        &quot;IPX/SPX&quot;: 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">015</span><span class="line-content">      },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">016</span><span class="line-content">      &quot;flowlens_records&quot;: 15278,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">017</span><span class="line-content">      &quot;protocols&quot;: {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">018</span><span class="line-content">        &quot;ARP&quot;: 12,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">019</span><span class="line-content">        &quot;ICMP&quot;: 257,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">020</span><span class="line-content">        &quot;IGMP&quot;: 9,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">021</span><span class="line-content">        &quot;IPX/SPX&quot;: 1,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">022</span><span class="line-content">        &quot;PIM&quot;: 1,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">023</span><span class="line-content">        &quot;RTCP&quot;: 9,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">024</span><span class="line-content">        &quot;RTP&quot;: 30,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">025</span><span class="line-content">        &quot;TCP&quot;: 2843,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">026</span><span class="line-content">        &quot;UDP&quot;: 12117</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">027</span><span class="line-content">      },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">028</span><span class="line-content">      &quot;from_botnet&quot;: 0,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">029</span><span class="line-content">      &quot;from_botnet_pct&quot;: 0.0,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">030</span><span class="line-content">      &quot;total_bytes&quot;: 826730114,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">031</span><span class="line-content">      &quot;input_sha256&quot;: &quot;3d17d15668f7ea26e31844ae531ef2ef9f702054df46e8999eda5e994fb8943d&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">032</span><span class="line-content">      &quot;raw_sha256&quot;: &quot;2d0af0c7ff129bb2fefe18a74ba81828f4ee4640cb45982e28171af1dae2141d&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">033</span><span class="line-content">      &quot;derived_rows_match_raw&quot;: true,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">034</span><span class="line-content">      &quot;parser_crosscheck&quot;: true</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">035</span><span class="line-content">    },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">036</span><span class="line-content">    {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">037</span><span class="line-content">      &quot;segment&quot;: &quot;mid&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">038</span><span class="line-content">      &quot;label&quot;: &quot;중간&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">039</span><span class="line-content">      &quot;byte_range&quot;: &quot;192266059-194363210&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">040</span><span class="line-content">      &quot;records&quot;: 15313,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">041</span><span class="line-content">      &quot;flowlens_excluded&quot;: 0,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">042</span><span class="line-content">      &quot;excluded_protocols&quot;: {},</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">043</span><span class="line-content">      &quot;flowlens_records&quot;: 15313,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">044</span><span class="line-content">      &quot;protocols&quot;: {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">045</span><span class="line-content">        &quot;ARP&quot;: 8,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">046</span><span class="line-content">        &quot;ICMP&quot;: 172,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">047</span><span class="line-content">        &quot;IGMP&quot;: 10,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">048</span><span class="line-content">        &quot;RTCP&quot;: 14,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">049</span><span class="line-content">        &quot;RTP&quot;: 21,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">050</span><span class="line-content">        &quot;TCP&quot;: 2360,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">051</span><span class="line-content">        &quot;UDP&quot;: 12728</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">052</span><span class="line-content">      },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">053</span><span class="line-content">      &quot;from_botnet&quot;: 128,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">054</span><span class="line-content">      &quot;from_botnet_pct&quot;: 0.8359,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">055</span><span class="line-content">      &quot;total_bytes&quot;: 157353488,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">056</span><span class="line-content">      &quot;input_sha256&quot;: &quot;5cd759d17034728958dda09bc44a203f78e94832f8e18f80f32593509d83c57a&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">057</span><span class="line-content">      &quot;raw_sha256&quot;: &quot;8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">058</span><span class="line-content">      &quot;derived_rows_match_raw&quot;: true,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">059</span><span class="line-content">      &quot;parser_crosscheck&quot;: true</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">060</span><span class="line-content">    },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">061</span><span class="line-content">    {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">062</span><span class="line-content">      &quot;segment&quot;: &quot;tail&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">063</span><span class="line-content">      &quot;label&quot;: &quot;끝&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">064</span><span class="line-content">      &quot;byte_range&quot;: &quot;384532119-386629270&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">065</span><span class="line-content">      &quot;records&quot;: 15431,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">066</span><span class="line-content">      &quot;flowlens_excluded&quot;: 0,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">067</span><span class="line-content">      &quot;excluded_protocols&quot;: {},</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">068</span><span class="line-content">      &quot;flowlens_records&quot;: 15431,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">069</span><span class="line-content">      &quot;protocols&quot;: {</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">070</span><span class="line-content">        &quot;ARP&quot;: 8,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">071</span><span class="line-content">        &quot;ICMP&quot;: 193,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">072</span><span class="line-content">        &quot;IGMP&quot;: 10,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">073</span><span class="line-content">        &quot;IPV6-ICMP&quot;: 1,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">074</span><span class="line-content">        &quot;RTCP&quot;: 12,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">075</span><span class="line-content">        &quot;TCP&quot;: 2202,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">076</span><span class="line-content">        &quot;UDP&quot;: 13005</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">077</span><span class="line-content">      },</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">078</span><span class="line-content">      &quot;from_botnet&quot;: 0,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">079</span><span class="line-content">      &quot;from_botnet_pct&quot;: 0.0,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">080</span><span class="line-content">      &quot;total_bytes&quot;: 42520608,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">081</span><span class="line-content">      &quot;input_sha256&quot;: &quot;7075821a9c23bfbd37b33b5cfa884f78dc368ea384c7a2394ccb3a0f9793edd0&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">082</span><span class="line-content">      &quot;raw_sha256&quot;: &quot;9d98509776c3d7f4f89f82cb990355e57492de80977f087207a66347df9f8add&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">083</span><span class="line-content">      &quot;derived_rows_match_raw&quot;: true,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">084</span><span class="line-content">      &quot;parser_crosscheck&quot;: true</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">085</span><span class="line-content">    }</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">086</span><span class="line-content">  ]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">087</span><span class="line-content">}</span></span></code></pre></section>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>줄 번호는 화면에서 읽기 위한 표시입니다. 실제 분석 코드는 아래 원문 그대로입니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

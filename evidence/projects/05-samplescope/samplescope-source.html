@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 source / python 보기">
+  <title>Samplescope — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>SOURCE / PYTHON <span class="reader-path">evidence/projects/05-samplescope/samplescope.py</span></p>
+    <h1 class="reader-title">Samplescope</h1>
+    <p class="reader-deck">원본 파일을 이 페이지 안에서 확인할 수 있도록 줄 번호와 함께 표시했습니다.</p>
+    <section class="source-panel" aria-label="소스 파일 본문"><div class="source-meta"><span>samplescope.py</span><span>103 lines</span></div><pre class="source-view"><code><span class="code-line"><span class="line-number" aria-hidden="true">001</span><span class="line-content">&quot;&quot;&quot;Compare three preserved CTU-13 byte ranges; never downloads or generates traffic.&quot;&quot;&quot;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">002</span><span class="line-content">import argparse</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">003</span><span class="line-content">import csv</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">004</span><span class="line-content">import hashlib</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">005</span><span class="line-content">import importlib.util</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">006</span><span class="line-content">import ipaddress</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">007</span><span class="line-content">import json</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">008</span><span class="line-content">import sys</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">009</span><span class="line-content">from collections import Counter</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">010</span><span class="line-content">from pathlib import Path</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">011</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">012</span><span class="line-content">RANGES = [</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">013</span><span class="line-content">    (&#x27;prefix&#x27;, &#x27;시작&#x27;, &#x27;0-2097151&#x27;, &#x27;2d0af0c7ff129bb2fefe18a74ba81828f4ee4640cb45982e28171af1dae2141d&#x27;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">014</span><span class="line-content">    (&#x27;mid&#x27;, &#x27;중간&#x27;, &#x27;192266059-194363210&#x27;, &#x27;8f52127f49a3076003848bc6c5584c15b7008fb58581266190cfd8cd5c02274b&#x27;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">015</span><span class="line-content">    (&#x27;tail&#x27;, &#x27;끝&#x27;, &#x27;384532119-386629270&#x27;, &#x27;9d98509776c3d7f4f89f82cb990355e57492de80977f087207a66347df9f8add&#x27;),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">016</span><span class="line-content">]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">017</span><span class="line-content">SOURCE = &#x27;https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow&#x27;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">018</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">019</span><span class="line-content">def digest(path):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">020</span><span class="line-content">    return hashlib.sha256(path.read_bytes()).hexdigest()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">021</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">022</span><span class="line-content">def run(work, flow_path):</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">023</span><span class="line-content">    spec = importlib.util.spec_from_file_location(&#x27;flowlens_samplescope&#x27;, flow_path)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">024</span><span class="line-content">    flow = importlib.util.module_from_spec(spec)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">025</span><span class="line-content">    sys.modules[spec.name] = flow</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">026</span><span class="line-content">    spec.loader.exec_module(flow)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">027</span><span class="line-content">    results = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">028</span><span class="line-content">    for key, label, byte_range, expected in RANGES:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">029</span><span class="line-content">        raw = work / f&#x27;ctu13-botnet42-{key}.bin&#x27;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">030</span><span class="line-content">        source = work / f&#x27;ctu13-botnet42-{key}-complete.binetflow&#x27;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">031</span><span class="line-content">        if digest(raw) != expected:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">032</span><span class="line-content">            raise ValueError(f&#x27;{key}: preserved source fingerprint changed&#x27;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">033</span><span class="line-content">        raw_lines = raw.read_bytes().splitlines()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">034</span><span class="line-content">        input_rows = source.read_bytes().splitlines()[1:]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">035</span><span class="line-content">        derived_rows_match = any(input_rows == raw_lines[start:end]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">036</span><span class="line-content">                                 for start in (0, 1) for end in (len(raw_lines), len(raw_lines) - 1))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">037</span><span class="line-content">        if not derived_rows_match:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">038</span><span class="line-content">            raise ValueError(f&#x27;{key}: input rows do not match the preserved byte range&#x27;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">039</span><span class="line-content">        with source.open(encoding=&#x27;utf-8-sig&#x27;, newline=&#x27;&#x27;) as handle:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">040</span><span class="line-content">            rows = list(csv.DictReader(handle))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">041</span><span class="line-content">        protocols = Counter(row[&#x27;Proto&#x27;].strip().upper() for row in rows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">042</span><span class="line-content">        botnet = sum(row[&#x27;Label&#x27;].strip().lower().removeprefix(&#x27;flow=&#x27;).startswith(&#x27;from-botnet&#x27;) for row in rows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">043</span><span class="line-content">        byte_total = sum(int(row[&#x27;TotBytes&#x27;]) for row in rows)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">044</span><span class="line-content">        parsed, invalid, _ = flow.load_flows(source)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">045</span><span class="line-content">        eligible = []</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">046</span><span class="line-content">        excluded = Counter()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">047</span><span class="line-content">        for row in rows:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">048</span><span class="line-content">            try:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">049</span><span class="line-content">                ipaddress.ip_address(row[&#x27;SrcAddr&#x27;].strip())</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">050</span><span class="line-content">                ipaddress.ip_address(row[&#x27;DstAddr&#x27;].strip())</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">051</span><span class="line-content">            except ValueError:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">052</span><span class="line-content">                excluded[row[&#x27;Proto&#x27;].upper()] += 1</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">053</span><span class="line-content">                continue</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">054</span><span class="line-content">            eligible.append(row)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">055</span><span class="line-content">        crosscheck = (len(parsed) == len(eligible) and len(invalid) == sum(excluded.values())</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">056</span><span class="line-content">                      and Counter(r.protocol.upper() for r in parsed) == Counter(r[&#x27;Proto&#x27;].upper() for r in eligible)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">057</span><span class="line-content">                      and sum(r.byte_count for r in parsed) == sum(int(r[&#x27;TotBytes&#x27;]) for r in eligible)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">058</span><span class="line-content">                      and sum(r.label_family == &#x27;From-Botnet&#x27; for r in parsed) == botnet)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">059</span><span class="line-content">        if not crosscheck:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">060</span><span class="line-content">            raise ValueError(f&#x27;{key}: CSV aggregate and FlowLens parser disagree&#x27;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">061</span><span class="line-content">        results.append(dict(segment=key, label=label, byte_range=byte_range, records=len(rows),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">062</span><span class="line-content">                            flowlens_excluded=len(invalid), excluded_protocols=dict(excluded), flowlens_records=len(parsed), protocols=dict(sorted(protocols.items())),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">063</span><span class="line-content">                            from_botnet=botnet, from_botnet_pct=round(botnet / len(rows) * 100, 4),</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">064</span><span class="line-content">                            total_bytes=byte_total, input_sha256=digest(source), raw_sha256=expected,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">065</span><span class="line-content">                            derived_rows_match_raw=derived_rows_match, parser_crosscheck=crosscheck))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">066</span><span class="line-content">    return dict(source_url=SOURCE, method=&#x27;Preserved non-random byte slices; direct CSV versus FlowLens parsing&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">067</span><span class="line-content">                limitation=&#x27;Three selected byte ranges are not random samples and do not estimate population attack prevalence.&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">068</span><span class="line-content">                total_records=sum(r[&#x27;records&#x27;] for r in results), segments=results)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">069</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">070</span><span class="line-content">def main():</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">071</span><span class="line-content">    parser = argparse.ArgumentParser()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">072</span><span class="line-content">    parser.add_argument(&#x27;--work&#x27;, type=Path, required=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">073</span><span class="line-content">    parser.add_argument(&#x27;--flowlens&#x27;, type=Path, default=Path(__file__).resolve().parent.parent / &#x27;01-flowlens/flowlens.py&#x27;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">074</span><span class="line-content">    parser.add_argument(&#x27;--output&#x27;, type=Path, default=Path(__file__).resolve().parent)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">075</span><span class="line-content">    args = parser.parse_args()</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">076</span><span class="line-content">    result = run(args.work, args.flowlens)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">077</span><span class="line-content">    args.output.mkdir(parents=True, exist_ok=True)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">078</span><span class="line-content">    (args.output / &#x27;samplescope-result.json&#x27;).write_text(json.dumps(result, ensure_ascii=False, indent=2) + &#x27;\n&#x27;, encoding=&#x27;utf-8&#x27;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">079</span><span class="line-content">    lines = [&#x27;# SampleScope — 표본 위치에 따른 네트워크 흐름 비교&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">080</span><span class="line-content">             &#x27;실행일: 2026-10-02 (한국 시간). 기존에 보관한 실제 CTU-13 세 바이트 구간을 재사용했습니다.&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">081</span><span class="line-content">             f&#x27;원본 출처: {SOURCE}&#x27;, &#x27;&#x27;, &#x27;## 실제 결과&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">082</span><span class="line-content">             &#x27;| 구간 | 흐름 | UDP | TCP | From-Botnet 라벨 | 라벨 비율 |&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">083</span><span class="line-content">             &#x27;| --- | ---: | ---: | ---: | ---: | ---: |&#x27;]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">084</span><span class="line-content">    for r in result[&#x27;segments&#x27;]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">085</span><span class="line-content">        lines.append(f&quot;| {r[&#x27;label&#x27;]} | {r[&#x27;records&#x27;]:,} | {r[&#x27;protocols&#x27;].get(&#x27;UDP&#x27;, 0):,} | {r[&#x27;protocols&#x27;].get(&#x27;TCP&#x27;, 0):,} | {r[&#x27;from_botnet&#x27;]:,} | {r[&#x27;from_botnet_pct&#x27;]:.4f}% |&quot;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">086</span><span class="line-content">    lines += [&#x27;&#x27;, f&quot;세 구간 합계: {result[&#x27;total_records&#x27;]:,}행. 세 구간 모두 원본 구간 해시 일치, 분석 입력의 각 행이 원본 구간의 연속된 완전한 행과 일치, IPv4/IPv6 범위에서 FlowLens 파서와 CSV 별도 집계 일치.&quot;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">087</span><span class="line-content">              &#x27;&#x27;, &#x27;## 재현 방법&#x27;, &#x27;&#x27;, &#x27;Python 3.10 이상에서 보관된 입력 6개를 포함한 폴더를 지정합니다.&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">088</span><span class="line-content">              &#x27;`python samplescope.py --work &lt;원본-보관-폴더&gt; --output &lt;결과-폴더&gt;`&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">089</span><span class="line-content">              &#x27;원시 자료는 공개 사이트에 포함하지 않습니다. 동일 입력이 있어야 재실행할 수 있습니다.&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">090</span><span class="line-content">              &#x27;## 검사 중 발견한 차이&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">091</span><span class="line-content">              &#x27;시작 구간 CSV는 15,279행입니다. IPX/SPX 1행의 주소가 IPv4/IPv6 형식이 아니므로 FlowLens는 이를 제외해 15,278행을 분석합니다. SampleScope 원본 분포에는 이 1행을 포함하며, 교차 확인은 IPv4/IPv6 주소가 있는 행에 한정합니다. 중간·끝 구간은 제외 행이 없습니다.&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">092</span><span class="line-content">              &#x27;## 판단과 제한&#x27;, &#x27;&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">093</span><span class="line-content">              &#x27;중간 구간에서만 From-Botnet 발신 라벨이 관측되었습니다. 구간 선택에 따라 관측값이 달라진다는 근거이며, 0건인 구간을 안전하다고 판정할 수 없습니다.&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">094</span><span class="line-content">              &#x27;세 구간은 과거 목적 탐색에서 선택한 비무작위 바이트 구간입니다. 독립 확률 표본, 전체 공격률 추정, 탐지 성능 평가가 아닙니다.&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">095</span><span class="line-content">              &#x27;From-Botnet은 제공자 라벨이며 이 프로젝트에서 새로 탐지한 공격이 아닙니다. 모든 구현·집계는 AI가 수행했으며 사용자 본인의 실습 성과로 주장하지 않습니다.&#x27;,</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">096</span><span class="line-content">              &#x27;CSV 별도 집계와 FlowLens 파서를 비교했습니다. 구현 경로가 다른 교차 확인이며 제3자 감사가 아닙니다.&#x27;, &#x27;&#x27;, &#x27;## 입력 지문&#x27;, &#x27;&#x27;]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">097</span><span class="line-content">    for r in result[&#x27;segments&#x27;]:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">098</span><span class="line-content">        lines += [f&quot;### {r[&#x27;label&#x27;]}&quot;, f&quot;- 원본 bytes: {r[&#x27;byte_range&#x27;]}&quot;, f&quot;- 원본 구간 SHA-256: `{r[&#x27;raw_sha256&#x27;]}`&quot;, f&quot;- 분석 입력 SHA-256: `{r[&#x27;input_sha256&#x27;]}`&quot;, &#x27;&#x27;]</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">099</span><span class="line-content">    (args.output / &#x27;samplescope-report.md&#x27;).write_text(&#x27;\n&#x27;.join(lines) + &#x27;\n&#x27;, encoding=&#x27;utf-8&#x27;)</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">100</span><span class="line-content">    print(json.dumps(result, ensure_ascii=False, indent=2))</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">101</span><span class="line-content">&nbsp;</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">102</span><span class="line-content">if __name__ == &#x27;__main__&#x27;:</span></span>
+<span class="code-line"><span class="line-number" aria-hidden="true">103</span><span class="line-content">    main()</span></span></code></pre></section>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>줄 번호는 화면에서 읽기 위한 표시입니다. 실제 분석 코드는 아래 원문 그대로입니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
