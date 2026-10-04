@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>SecretFence — 공개 전 비밀값·연락처 패턴 점검기 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/03-secretfence/README.md</span></p>
+    <h1 class="reader-title">SecretFence — 공개 전 비밀값·연락처 패턴 점검기</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><p>SecretFence는 지정 폴더의 작은 텍스트 파일을 오프라인에서 검사해 자격 증명처럼 보이는 패턴과 일부 연락처 형식을 탐지합니다. 출력에는 원문 값 대신 파일 상대 경로·행·패턴 종류만 표시합니다. 검사 파일 수와 2MB 초과·바이너리·인코딩·심볼릭 링크·읽기 오류로 빠진 항목 수도 남깁니다.</p>
+<h2>실행</h2>
+<p>Python 3.10 이상:</p>
+<pre class="code-block"><code class="language-powershell">python .\secretfence.py C:\path\to\publish-folder --output .\scan-report.md</code></pre>
+<p>저장소가 Git으로 관리되고 <code>git</code> 명령을 쓸 수 있다면 커밋 이력도 선택적으로 검사할 수 있습니다:</p>
+<pre class="code-block"><code class="language-powershell">python .\secretfence.py C:\path\to\repository --git-history</code></pre>
+<p>현재 결과물 패키지의 실제 실행에서는 텍스트 패턴 검사와 Git 이력 접근 가능 여부를 각각 시도했습니다. 결과와 검사 범위는 <a href="run-notes.html">run-notes.md</a>, 최종 worktree 검사 기록은 <a href="secretfence-release-scan.html">secretfence-release-scan.md</a>에 있습니다.</p>
+<h2>한계</h2>
+<p>정규식 패턴은 모든 자격 증명·개인정보 형식을 포괄하지 않습니다. 이미지·PDF·압축·난독화 파일, 무시 목록의 폴더, 2MB 초과 파일은 검사하지 않습니다. 0건은 비밀정보 부재의 증명이 아닙니다. Git 이력을 검사하지 못했으면 통과로 보지 않습니다.</p></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>

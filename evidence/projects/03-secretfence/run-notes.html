@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="검증된 네트워크·보안 프로젝트의 evidence / report 보기">
+  <title>SecretFence — 실제 결과물 폴더 검사 기록 — FIELD NOTES</title>
+  <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+  <link rel="stylesheet" href="../../../evidence.css">
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="../../../index.html"><span class="reader-mark" aria-hidden="true">•</span><span>FIELD NOTES <small>/ EVIDENCE</small></span></a>
+    <nav aria-label="기록 내비게이션"><a href="../README.html">기록 목록</a><a class="back-link" href="../../../index.html">소개 페이지로 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="reader-shell">
+    <p class="reader-kicker"><span class="reader-signal" aria-hidden="true"></span>EVIDENCE / REPORT <span class="reader-path">evidence/projects/03-secretfence/run-notes.md</span></p>
+    <h1 class="reader-title">SecretFence — 실제 결과물 폴더 검사 기록</h1>
+    <p class="reader-deck">실제 입력 표본의 값과 범위를 확인하는 기록입니다. 아래 수치는 본문에 표시된 표본·한계 안에서 해석해야 합니다.</p>
+    <article class="report-copy"><h2>입력과 실행</h2>
+<ul><li>범위: 실제 공개 후보 <code>outputs/projects</code> 폴더의 코드·문서·실데이터 보고서·manifest</li><li>입력은 합성 탐지 fixture가 아니라 현재 작업의 실제 결과물입니다. 원시 CTU/Cowrie 입력은 공개 결과물 폴더에 넣지 않았습니다.</li><li>파일 검사는 <code>.git</code>, 캐시/빌드 폴더를 제외하고 최대 2MB UTF-8 텍스트를 대상으로 합니다. 제외/건너뜀 수는 <a href="secretfence-release-scan.html">최종 스캔 보고서</a>에 있습니다.</li><li>Git 이력 검사는 <code>--git-history</code>로 별도 요청해 결과를 확인했습니다.</li></ul>
+<h2>첫 실행에서 발견한 실제 결함과 수정</h2>
+<ul><li>첫 실제 실행은 지정 패턴 발견 0건과 읽기 오류 0건만 출력하고, 실제 검사한 파일 수와 조용히 건너뛴 파일 수를 보여주지 않았습니다. 따라서 출력만으로 검사 범위를 확인할 수 없었습니다.</li><li>수정 후는 검사 완료 수, 2MB 초과, 바이너리, 비 UTF-8, 심볼릭 링크, 읽기 오류를 각각 세고, 하나라도 있으면 범위 미완료 종료 코드를 반환하도록 했습니다. Markdown 보고서 저장도 추가했습니다.</li><li>수정 뒤 결과물 폴더 전체를 반복 실행해 독립 대조 코드와 기록까지 포함한 최종 범위를 확인했습니다. 내용 검사 완료 21개, 지정 패턴 0건, 초과/바이너리/비 UTF-8/링크 건너뜀 0개, 읽기 오류 0개였습니다. 최종 수치는 보고서에서 확인할 수 있습니다.</li></ul>
+<h2>Git 이력과 판단 한계</h2>
+<ul><li>이 실행 환경에는 Git 실행 파일이 PATH에서 발견되지 않았고, <code>--git-history</code> 실행은 <code>Git executable is not available; history scan was not performed</code> 오류(종료 코드 2)로 끝났습니다. 그러므로 Git 커밋 이력의 비밀값은 검사하지 못했습니다.</li><li>AI가 수행한 일: 검사기를 구현·실행하고 실제 출력의 범위 보고 누락을 수정했습니다.</li><li>사용자가 직접 정한 정책: 피드백은 네 실험 후 받기로 했으므로 아직 없습니다. 패턴 목록/제외 폴더는 구현 범위이지 사용자가 검증한 정책이라고 하지 않습니다.</li><li>따르지 않은 초기 접근: 격리 합성 파일로 탐지 성공을 연출하지 않고, 실제 제출 후보 폴더를 검사했습니다.</li><li>결과 0건은 지정 규칙만 적용한 결과입니다. Git 기록, 원시 다운로드 파일, 문서 이미지/압축 데이터는 이 실행의 결론에 포함하지 않습니다.</li></ul></article>
+    <aside class="reader-note"><span aria-hidden="true">↳</span><p>이 화면은 사이트 안에서 바로 읽도록 만든 HTML 보기입니다. 원본 표본과 분석 한계는 보고서 본문을 따릅니다.</p></aside>
+  </main>
+  <footer class="reader-footer"><span>FIELD NOTES / SOURCE TRACE</span><a href="../../../index.html">페이지로 돌아가기 ↑</a></footer>
+</body>
+</html>
