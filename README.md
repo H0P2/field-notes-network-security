@@ -110,3 +110,14 @@ python -m http.server 8765 --bind 127.0.0.1
 통과: 확대창이 닫히며 링크로 초점이 돌아오고 Enter로 다시 열립니다.
 
 실패: 이미지 파일로 페이지가 이동하거나, Esc로 닫히지 않거나, 초점이 사라집니다.
+
+
+## 2026-10-14 과제 8 패스키 공간 연결
+
+FIELD NOTES의 공개 소개·프로젝트·근거 페이지는 그대로 유지하고 HOME·ABOUT·DASHBOARD 메뉴에서 [개인 공간 · 패스키](https://hope-passkey-portfolio.mo990025.chatgpt.site/#private)로 이동할 수 있도록 연결합니다. 이 링크는 GitHub Pages와 다른 원점의 기존 Sites 앱으로 이동합니다.
+
+패스키 등록·로그인과 보호 자료는 기존 Sites 앱에서 처리합니다. 이번 연결은 GitHub Pages에 인증 서버를 옮기는 작업이 아니며 기존 서버·WebAuthn RP ID·세션 쿠키·CSP를 변경하지 않습니다. GitHub Pages의 공개 소개 내용과 Sites의 인증된 가상 개인 자료를 구분합니다.
+
+패스키 앱의 [공개 소스](https://hope-passkey-portfolio.mo990025.chatgpt.site/source)를 함께 제공합니다. 소스와 검증 기록에서 실제 운영 관찰과 합성 검사를 구분합니다. 이번 메뉴 연결만으로 과제 8의 모든 조건이나 실제 요청·거절 검증이 완료되었다고 주장하지 않습니다.
+
+기존 소개의 ASA 학습 상태, 실제 자료의 표본 한계, 사용자 판단과 AI 구현·분석의 역할 구분은 바꾸지 않았습니다.
