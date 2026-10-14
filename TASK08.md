@@ -1,6 +1,6 @@
-# 과제8 인증 구현 설명서 — 2026-10-14
+# 과제8 인증 구현 설명서 — 2026-10-14 3D 개편
 
-원본 FIELD NOTES의 공개 소개와 기존 Sites 패스키 인증 영역을 메뉴 링크로 연결하는 패키지다. 이 설명서는 구현·패키지 내용과 확인된 증거를 기록한다. 실제 GitHub 발행 커밋·공개 접근 확인·최종 제출 receipt는 별도 기록으로 관리하며, 이 문서만으로 발행·제출 완료나 전체 조건 충족을 주장하지 않는다.
+FIELD NOTES의 기존 관심 분야·실제 프로젝트·검토 기준을 유지하고 공개 화면을 3D 탐색형 자기소개로 개편했다. 사용자 승인으로 과제8 결과물을 직접 수정한다. 패스키는 기존 Sites 인증 영역으로 연결하며 인증 서버·계정·키·자료를 변경하지 않는다. 실제 발행과 제출 상태는 별도 접수 기록으로 확인한다.
 
 결과물 URL: https://h0p2.github.io/field-notes-network-security/  
 소스 URL: https://github.com/H0P2/field-notes-network-security  
@@ -27,7 +27,14 @@ pQECAyYgASFYIKYPKBnijaeLXh4IdK9SRT1NqqGkUXkPjGa0lFPlOcxhIlggaUmMz15q7A8VOB4CjKgr
 
 ## ③ 어디를 어떻게 고쳤나
 
-T01 고정 원본 `b34808a69065c849e5c2c4e6547d7b7594c5b910`의86개 파일을 보존 자료로 확보했다. 소개 메뉴·설명 변경 파일은5개다. `index.html`·`about.html`·`dashboard.html`의 기존 메뉴에 Sites `/#private` 외부 링크 하나씩 추가하고, `README.html`의 깨진 업데이트 링크3개를 기존 `.md` 파일로 교정하며, `README.md`는 원문 뒤에 연결 설명을 덧붙인다. 이 패키지에서 추가·교정을 되돌리면 기존5파일 Git blob SHA·크기가 모두 일치한다. 나머지81파일은 덮어쓸 필요가 없다. 기존 소개·ASA 학습/미기록·AI 역할·경험·성과를 새 사실로 바꾸지 않았다. 발행 후 원본 보존·메뉴 확인은 별도 발행 검증 기록에서 관리한다.
+T01 FIELD NOTES의 공개 내용인 네트워크·보안 관심, ASA 학습 상태, 실제 자료 우선·독립 대조·단계 진행 원칙, 실제 프로젝트 다섯 개, 공개 범위와 사용자/AI 역할을 새 화면에 연결했다. 원래 레이아웃을 보존하는 메뉴 추가 방식에서 전체 3D 개편으로 변경했다. 기존 보고서·원문·결과 이미지 링크는 계속 사용한다. 새로운 개인 경력이나 실험 결과는 만들지 않았다.
+
+- `index.html`·`about.html`·`dashboard.html`: 공개 소개·3D 프로젝트 탐색·프로젝트 목록·자기소개·패스키 진입을 담은 새 화면. 기존 ABOUT/DASHBOARD 주소와 일부 옛 앵커도 연결된다.
+- `orbit-scene.js`: Three.js의 프리즘·네트워크 노드·PC 화면·프로젝트 궤도·개인 공간 포털. PC 화면과 궤도 카드의 선·파형은 공간 연출용 그래픽이며 실제 측정 차트가 아니다. 실제 결과 차트는 프로젝트 팝업의 보존 이미지다.
+- `portfolio-app.js`: 분류, 프로젝트 팝업, 실제 보고서/소스 연결, 키보드 닫기/초점 복귀, 모바일 메뉴, 움직임 줄이기와 카메라 진행. API 호출이나 인증정보 접근은 없다.
+- `portfolio-data.js`: 확인된 T01 프로젝트 수치와 표본 한계·자기소개 사실. `portfolio.css`: 반응형 화면과 읽기·클릭·초점 표시. 브라우저 실행 파일 `portfolio.js`는 Three.js를 포함해 번들한 결과다.
+
+입체 연출은 Active Theory의 공간 탐색을 참고한 별도 절차적 모델이며 해당 사이트의 코드·이미지·모델은 복제하지 않았다. 저사양 환경을 위해 DPR1.5 제한·30fps 상한·비활성 탭 정지·동작 줄이기·WebGL 실패 안내와 HTML 프로젝트 목록을 제공한다. 개인 공간으로 이동하면 기존 인증 사이트에서 등록·로그인·로그아웃·키 관리와 보호 자료 조회를 진행한다.
 
 실제 인증 소스는 기존 Sites v3, commit `172fa1b81607c604047ad4b9fdddc39abdf89be8`의 `server/api.js`다. 등록 `/api/passkeys/register/options`·`/verify`·`/cancel`, 로그인 `/api/passkeys/authenticate/options`·`/verify`, 로그아웃 `/api/logout`, 비공개 조회 `/api/vault`·`/api/vault/:owner`가 이 서버를 지난다. 소유권 거절은 로그인 사용자와 `account_id` 조건을 확인하는 vault 분기다.
 
@@ -67,7 +74,7 @@ C25는 별도 localhost에서 명시적 NotAllowedError shim으로 취소를 모
 
 ## ⑥ 아직 못 막은 것·미완료
 
-공개 Pages 메뉴·파일 접근·소스 링크의 발행 검증과 제출 receipt는 별도 기록으로 확인한다. Pages→Sites 외부연결을 T01 계승 조건의 최종 심사 통과로 확정하지 않는다. 기존 Sites 소스·publisher 제한은 우회하거나 해소했다고 표시하지 않고 실제 서버·RP ID·쿠키·CSP를 유지한다.
+공개 Pages 메뉴·파일 접근·소스 링크의 발행 검증과 제출 receipt는 별도 기록으로 확인한다. Pages→Sites 외부연결을 T01 계승 조건의 최종 심사 통과로 확정하지 않는다. 기존 Sites 인증 서버·RP ID·쿠키·CSP와 계정·자료를 유지한다. 이 개편은 GitHub Pages 공개 화면 변경이며 Sites 서버 재배포를 주장하지 않는다.
 
 개별UUID 요청 HTTP상태 직접대조, C 새 API 재조회, C query·요청본문 위조, 선택credential·삭제키거절 독립증거는 부족하다. C저장소명은 사용자선호대로 뒤에 확인한다. 운영 실기기 등록본문·정상replay·oldSession은 미관찰이지만 로컬 원문 기록은 부록에 있다. 사용자/기기 증거로 바꾸지 않는다. 모든 패스키·저장소 접근을 잃으면 비공개자료에 다시 접근할 수 없고 비밀번호 복구는 제공하지 않는다. 잠금해제된 기기·유효세션 탈취위험을 완전히 없앨 수 없다.
 
@@ -75,7 +82,7 @@ C25는 별도 localhost에서 명시적 NotAllowedError shim으로 취소를 모
 
 1. 어디로 가나요: 결과물 https://h0p2.github.io/field-notes-network-security/ 와 소스 https://github.com/H0P2/field-notes-network-security 를 연다.
 2. 세 단계 안에 무엇을 하나요: 공개 FIELD NOTES 확인 → 패스키 메뉴로 별도 Sites 이동 → 본인 패스키 로그인 후 가상자료3개·키목록 확인.
-3. 무엇이 보이면 통과인가요: 원래 공개소개가 남고 인증 뒤 본인자료만 열린다. 양방향 owner_denied·자료보존·두키 삭제절차는 기록의 범위로 확인하며 C11 심사와 전체조건 충족은 확정하지 않는다.
+3. 무엇이 보이면 통과인가요: 기존 소개의 확인된 내용과 실제 프로젝트가 새 화면에 남고 인증 뒤 본인자료만 열린다. 양방향 owner_denied·자료보존·두키 삭제절차는 기록의 범위로 확인하며 C11 심사와 전체조건 충족은 확정하지 않는다.
 4. 안 될 때는 무엇이 보이나요: 취소안내 또는401/owner_denied 등 거절을 확인한다. ERR_BLOCKED_BY_CLIENT는 앱거절과 구분하고 로컬replay400·삭제키 사용자보고도 범위를 따른다.
 
 ## AI와 나 3줄

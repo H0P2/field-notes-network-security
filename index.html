@@ -1,119 +1,64 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark">
-  <meta name="description" content="네트워크와 보안을 배우고, 실제 자료의 근거를 다시 확인하는 개인 프로젝트 기록. FIELD NOTES.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080b10">
+  <meta name="description" content="네트워크와 보안에 대한 호기심을 실제 자료와 검증 가능한 프로젝트로 이어가는 FIELD NOTES. 공개 소개와 패스키 개인 공간.">
   <title>FIELD NOTES — Follow the Signal</title>
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="preload" as="image" href="./assets/guide-laptop-room.png">
-  <link rel="stylesheet" href="./site.css?v=594674842a"><link rel="stylesheet" href="./entrance.css?v=60d8c346c7">
-  <script src="./site.js?v=5daa4cfe54" defer></script><script src="./entrance.js?v=30f114e699" defer></script>
-<link rel="stylesheet" href="./laptop-scene.css?v=8d7c2e0cab">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./portfolio.css?v=20261014">
+  <script src="./portfolio.js?v=20261014" type="module"></script>
 </head>
-<body class="entrance-page">
-<a class="skip-link" href="#main">본문으로 건너뛰기</a>
-<header class="site-header"><div class="shell header-inner">
-  <a class="wordmark" href="./index.html" aria-label="FIELD NOTES 홈"><span class="wordmark-mark" aria-hidden="true">FN</span><span>FIELD NOTES <span class="wordmark-index">/ PERSONAL LAB</span></span></a>
-  <nav aria-label="주 메뉴"><a href="./dashboard.html">DASHBOARD</a><a href="./about.html">ABOUT</a><a href="https://hope-passkey-portfolio.mo990025.chatgpt.site/#private" aria-label="개인 공간 · 패스키 (별도 사이트)">개인 공간 · 패스키 ↗</a><button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false" hidden>움직임 줄이기</button></nav>
-</div></header>
-<main id="main">
-<section class="journey laptop-journey" id="top" aria-labelledby="page-title">
-  <div class="journey-stage">
-    <div class="room-surround" aria-hidden="true"><div class="room-orbit"><i class="room-wing wing-left"></i><i class="room-wing wing-right"></i><i class="room-ring ring-near"></i><i class="room-ring ring-far"></i></div></div>
-    <div class="camera-scene" aria-hidden="true">
-      <div class="workstation-world">
-        <img class="workstation-image" src="./assets/guide-laptop-room.png" width="1536" height="1024" alt="" fetchpriority="high">
-        <div class="laptop-screen-surface" inert><div class="screen-portal">
-  <div class="screen-portal__topline">
-    <span class="screen-portal__wordmark"><span aria-hidden="true">FN</span> FIELD NOTES</span>
-    <span class="screen-portal__edition">PERSONAL LAB / 01</span>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <canvas id="spatial-canvas" aria-label="네트워크 구조와 프로젝트가 떠 있는 3D 작업 공간"></canvas>
+  <div class="scene-vignette" aria-hidden="true"></div>
+  <div class="scene-grid" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"><span id="progress-fill"></span></div>
+  <div class="site-shell">
+    <header class="masthead">
+      <a class="brand" href="#home" aria-label="FIELD NOTES 홈"><span class="brand-mark">FN<span>↗</span></span><span class="brand-caption">FIELD NOTES<br><small>PERSONAL RESEARCH SPACE</small></span></a>
+      <nav class="top-nav" aria-label="주 메뉴"><a href="#work">프로젝트</a><a href="#about">나의 소개</a><a href="#private">개인 공간 <span aria-hidden="true">↗</span></a></nav>
+      <div class="header-controls"><button id="motion-toggle" type="button" aria-pressed="false" aria-label="움직임 줄이기">모션 ON</button><button id="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="메뉴 열기">메뉴 <span aria-hidden="true">＋</span></button></div>
+    </header>
+    <nav id="mobile-menu" class="mobile-menu" aria-label="모바일 메뉴" hidden><a href="#home">처음으로</a><a href="#work">프로젝트</a><a href="#about">나의 소개</a><a href="#private">개인 공간</a></nav>
+    <main id="main">
+      <section id="home" class="hero chapter" aria-labelledby="hero-title">
+        <p class="hero-index"><span class="status-dot" aria-hidden="true"></span> NETWORK / SECURITY / CURIOSITY</p>
+        <h1 id="hero-title" class="hero-title"><span>FOLLOW</span><span>THE <em>SIGNAL.</em></span></h1>
+        <div class="hero-bottom"><div><p class="hero-copy">연결을 탐험하고,<br>근거를 남깁니다.</p><div class="hero-actions"><a class="button-primary" id="enter-work" href="#orbit-stage">작업 공간으로 들어가기 <span aria-hidden="true">↗</span></a><a class="button-link" href="#about">나의 이야기 읽기 <span aria-hidden="true">↓</span></a></div></div><p class="hero-aside">네트워크와 보안을 배우며<br>실제 자료에서 질문하고<br>확인할 수 있는 결과로 답합니다.<span>EXPLORE A PERSONAL LAB / 2026</span></p></div>
+        <a class="scroll-cue" href="#work"><span aria-hidden="true">↓</span> SCROLL TO EXPLORE <small>스크롤하거나 프로젝트를 선택하세요</small></a>
+        <p class="loading-status" role="status">작업 공간을 불러오는 중</p>
+        <p class="scene-note" hidden>입체 화면을 사용할 수 없어 정적 화면으로 표시합니다. 프로젝트와 모든 메뉴는 계속 사용할 수 있습니다.</p>
+      </section>
+      <section id="work" class="work chapter" aria-labelledby="work-title">
+        <div class="section-header js-reveal"><div><p class="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">질문에서 시작해.<br><span>결과로 이어지다.</span></h2></div><p class="section-copy">실제 공개 자료로 진행한 다섯 프로젝트.<br>숫자 뒤의 과정과 한계까지 함께 열어보세요.</p></div>
+        <div id="orbit-stage" class="orbit-stage" aria-label="3D 프로젝트 탐색 공간"><p class="orbit-caption"><span>EXPLORE THE CONSTELLATION</span>떠 있는 프로젝트를 선택해 보세요.<br><small>아래 목록에서도 같은 결과를 열 수 있습니다.</small></p></div>
+        <div class="project-filters" role="group" aria-label="프로젝트 분류"><button class="active" type="button" data-filter="all" aria-pressed="true">전체 <span>05</span></button><button type="button" data-filter="network" aria-pressed="false">네트워크</button><button type="button" data-filter="security" aria-pressed="false">보안</button><button type="button" data-filter="tooling" aria-pressed="false">검증 도구</button></div>
+        <p id="filter-status" class="sr-only" role="status"></p>
+        <div id="project-grid" class="project-grid"></div>
+        <noscript><div class="noscript-projects"><h3>실제 프로젝트 기록</h3><a href="./evidence/projects/01-flowlens/flowlens-ctu13-report.html">FlowLens</a><a href="./evidence/projects/02-authsentry/authsentry-cowrie-report.html">AuthSentry</a><a href="./evidence/projects/03-secretfence/secretfence-release-scan.html">SecretFence</a><a href="./evidence/projects/04-publishgate/publishgate-report.html">PublishGate</a><a href="./evidence/projects/05-samplescope/samplescope-report.html">SampleScope</a></div></noscript>
+        <div class="work-footnote"><span>REAL INPUT. CLEAR LIMITS.</span><a href="./evidence/projects/independent-audit.html">독립 재계산 기록 보기 ↗</a><p>주제와 검토 기준은 제가 정했고, 코드·실험 실행·분석은 AI가 수행했습니다.</p></div>
+      </section>
+      <section id="about" class="about chapter" aria-labelledby="about-title">
+        <div class="about-heading js-reveal"><p class="eyebrow">02 / A LITTLE ABOUT ME</p><h2 id="about-title">좋은 질문이<br><span>다음 연결을 만듭니다.</span></h2><p class="about-copy">네트워크와 보안에 관심이 있고, 지금은 ASA 방화벽을 배우고 있습니다. 그럴듯한 결과보다 실제 자료와 다시 확인할 수 있는 근거를 중요하게 생각합니다.</p></div>
+        <div id="interest-list" class="interest-list"></div>
+        <div class="principles-heading"><p class="eyebrow">THE WAY I WORK</p><h3>제가 선택한 세 가지 기준.</h3></div>
+        <div id="principle-grid" class="principle-grid"></div>
+        <aside id="learning-title" class="learning-note"><span class="status-dot" aria-hidden="true"></span><div><h3>지금 배우는 것 · ASA 방화벽</h3><p>장비 환경 구성과 실습은 보류 상태입니다. 아직 실제 ASA 실습 결과를 기록하지 않았으며 프로젝트 성과로 집계하지 않습니다.</p><a href="./evidence/projects/experience-log.html">학습·경험 기록 보기 ↗</a></div><span class="learning-stamp">IN PROGRESS</span></aside>
+        <aside class="authorship-note"><p class="eyebrow">COLLABORATION / CLEAR ROLES</p><h3>AI와 함께, 역할은 분명하게.</h3><p>저는 주제, 난이도, 실제 자료 사용과 재검토 방향을 정했습니다. 코드 작성, 실험 실행, 분석과 사이트 구현은 AI가 수행했습니다. 이를 제가 독립적으로 작성한 코드나 완료한 장비 실습 경력으로 소개하지 않습니다.</p></aside>
+        <aside class="authorship-note"><p class="eyebrow">PUBLIC BY CHOICE</p><h3>공개하는 것과, 남겨두는 것.</h3><p>제가 정한 작업 기준, 실제 공개 자료의 집계값과 한계, 코드와 보고서를 공개합니다. 개인 연락처·기관·정확한 위치와 원시 로그의 식별자·비밀값은 포함하지 않습니다. 원시 데이터는 배포 폴더 밖에 두고 FlowLens의 주소는 별칭으로 표시합니다.</p></aside>
+      </section>
+      <section id="private" class="private chapter" aria-labelledby="private-title">
+        <div class="private-orbit" aria-hidden="true"><span>PRIVATE</span><div>↗</div><span>SPACE</span></div>
+        <div class="private-copy js-reveal"><p class="eyebrow">03 / BEYOND THE PUBLIC</p><h2 id="private-title">여기부터는,<br><span>나만의 공간.</span></h2><p>공개 소개는 누구나 읽을 수 있습니다.<br>개인 공간은 본인의 패스키로만 열립니다.</p><a class="button-primary" href="https://hope-passkey-portfolio.mo990025.chatgpt.site/#private" aria-label="패스키 개인 공간 열기 · 별도 인증 사이트">패스키로 개인 공간 열기 <span aria-hidden="true">↗</span></a><div class="private-details"><p><span>01 / ACCESS</span>기기의 잠금 해제로 로그인합니다. 비밀번호는 사용하지 않습니다.</p><p><span>02 / CONTENT</span>프로젝트 메모·지원처 목록·회고는 기능 확인용 가상 자료입니다.</p><p><span>03 / YOUR KEYS</span>기존 인증 사이트에서 패스키를 관리합니다. 모든 키를 잃으면 다시 접근할 수 없으므로 다른 저장소에도 키를 보관하세요.</p></div><p class="private-origin-note">별도 인증 사이트로 이동합니다. 기존 패스키와 계정으로 이용하세요.</p></div>
+      </section>
+    </main>
+    <footer class="site-footer"><a class="brand" href="#home">FIELD NOTES <span>↗</span></a><p>배우고, 기록하고, 다시 확인합니다.</p><div><a href="./TASK08.md">인증 구현 설명서</a><a href="https://github.com/H0P2/field-notes-network-security">공개 소스 ↗</a><a href="#home">맨 위로 ↑</a></div><small>PUBLIC NOTES / PRIVATE SPACE · 2026</small></footer>
   </div>
-  <div class="screen-portal__body">
-    <div class="screen-portal__intro">
-      <p class="screen-portal__eyebrow">INSIDE THE FIELD NOTES</p>
-      <h2 class="screen-portal__title">호기심의 안쪽,<br><span>기록이 쌓이는 곳.</span></h2>
-      <p class="screen-portal__description">네트워크와 보안을 배우며 남긴 실험과 생각.<br>어떤 질문을 했고, 무엇을 확인했는지 만나보세요.</p>
-    </div>
-    <nav class="screen-portal__routes" aria-label="자세히 살펴보기">
-      <a class="screen-portal__route" href="./dashboard.html">
-        <span class="screen-portal__route-meta"><span>01 / SELECTED WORK</span><span class="screen-portal__arrow" aria-hidden="true">↗</span></span>
-        <div class="screen-portal__route-copy"><h3>DASHBOARD</h3><p>질문에서 근거까지.</p><span>프로젝트 5개 · 결과 이미지 · 보고서와 소스</span></div>
-      </a>
-      <a class="screen-portal__route" href="./about.html">
-        <span class="screen-portal__route-meta"><span>02 / A LITTLE ABOUT ME</span><span class="screen-portal__arrow" aria-hidden="true">↗</span></span>
-        <div class="screen-portal__route-copy"><h3>ABOUT</h3><p>계속 배우는 사람.</p><span>관심 분야 · ASA 학습 · 작업의 기준</span></div>
-      </a>
-    </nav>
-  </div>
-  <div class="screen-portal__footer">
-    <span>OBSERVE. QUESTION. VERIFY.</span>
-    <a href="./evidence/projects/review-2026-10-02.html">재검토 기록 <span aria-hidden="true">↗</span></a>
-  </div>
-</div>
-</div>
-      </div>
-    </div>
-    <div class="scene-shade" aria-hidden="true"></div>
-    <div class="shell journey-layout">
-      <div class="journey-copy">
-        <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> NETWORK &amp; SECURITY</p>
-        <h1 id="page-title">생각이 기록이<br>되는 <span>공간으로.</span></h1>
-        <p class="journey-description">네트워크와 보안을 배우며,<br>실제 자료에서 질문하고 근거로 답을 찾습니다.</p>
-        <div class="journey-actions"><a class="journey-enter" href="#destinations">노트북 안으로 <span aria-hidden="true">↗</span></a><a class="journey-evidence" href="./evidence/projects/review-2026-10-02.html">재검토 기록 <span aria-hidden="true">↗</span></a></div>
-        <div class="journey-facts"><a href="./dashboard.html"><strong>05</strong><span>공개 자료 기반 프로젝트</span></a><div><strong>ASA</strong><span>지금 배우고 있는 주제</span></div></div>
-        <p class="journey-audience">네트워크·보안 프로젝트 검토자를 위한 관심과 작업의 기록.</p>
-      </div>
-    </div>
-    <div class="screen-arrival" inert aria-hidden="true" role="region" aria-label="노트북 안의 프로젝트와 자기소개"><div class="screen-portal">
-  <div class="screen-portal__topline">
-    <span class="screen-portal__wordmark"><span aria-hidden="true">FN</span> FIELD NOTES</span>
-    <span class="screen-portal__edition">PERSONAL LAB / 01</span>
-  </div>
-  <div class="screen-portal__body">
-    <div class="screen-portal__intro">
-      <p class="screen-portal__eyebrow">INSIDE THE FIELD NOTES</p>
-      <h2 class="screen-portal__title">호기심의 안쪽,<br><span>기록이 쌓이는 곳.</span></h2>
-      <p class="screen-portal__description">네트워크와 보안을 배우며 남긴 실험과 생각.<br>어떤 질문을 했고, 무엇을 확인했는지 만나보세요.</p>
-    </div>
-    <nav class="screen-portal__routes" aria-label="자세히 살펴보기">
-      <a class="screen-portal__route" href="./dashboard.html">
-        <span class="screen-portal__route-meta"><span>01 / SELECTED WORK</span><span class="screen-portal__arrow" aria-hidden="true">↗</span></span>
-        <div class="screen-portal__route-copy"><h3>DASHBOARD</h3><p>질문에서 근거까지.</p><span>프로젝트 5개 · 결과 이미지 · 보고서와 소스</span></div>
-      </a>
-      <a class="screen-portal__route" href="./about.html">
-        <span class="screen-portal__route-meta"><span>02 / A LITTLE ABOUT ME</span><span class="screen-portal__arrow" aria-hidden="true">↗</span></span>
-        <div class="screen-portal__route-copy"><h3>ABOUT</h3><p>계속 배우는 사람.</p><span>관심 분야 · ASA 학습 · 작업의 기준</span></div>
-      </a>
-    </nav>
-  </div>
-  <div class="screen-portal__footer">
-    <span>OBSERVE. QUESTION. VERIFY.</span>
-    <a href="./evidence/projects/review-2026-10-02.html">재검토 기록 <span aria-hidden="true">↗</span></a>
-  </div>
-</div>
-</div>
-    <div class="journey-status shell"><div class="journey-status-copy"><span class="journey-step">01 / AT THE DESK</span><span class="journey-story">스크롤해 작업 공간 안으로 들어오세요.</span></div><div class="journey-track" aria-hidden="true"><i></i></div><span class="journey-scroll" aria-hidden="true">SCROLL TO ENTER <span>↓</span></span></div>
-  </div>
-</section>
-<section class="field-summary shell" id="about-snapshot" aria-labelledby="field-summary-title">
-  <div class="field-summary-head">
-    <div><p class="eyebrow">ABOUT / THREE FIELD NOTES</p><h2 id="field-summary-title">배우는 주제와<br><span>확인하는 방식.</span></h2></div>
-    <p>저는 네트워크와 보안에 관심이 있고 ASA 방화벽을 배우는 중입니다. 이 기록에는 제가 정한 질문과 기준, AI가 공개 자료로 수행한 분석을 구분해 담았습니다.</p>
-  </div>
-  <div class="field-summary-grid">
-    <article class="field-note"><span class="field-note-index">01 / REAL INPUT</span><h3>실제 자료를 고릅니다.</h3><dl><div><dt>상황</dt><dd>합성 입력만으로는 프로젝트 기록의 신빙성을 확인하기 어려웠습니다.</dd></div><div><dt>행동</dt><dd>공개된 실제 자료로 실험하라고 요청했습니다.</dd></div><div><dt>결과</dt><dd>CTU-13 흐름과 Cowrie 세션의 집계 보고서가 남았습니다.</dd></div></dl><a href="./evidence/projects/review-2026-10-02.html">재검토 기록 보기 <span aria-hidden="true">↗</span></a></article>
-    <article class="field-note"><span class="field-note-index">02 / RECHECK</span><h3>값을 다시 묻습니다.</h3><dl><div><dt>상황</dt><dd>결과값이 원본과 일치하는지 확인할 필요가 있었습니다.</dd></div><div><dt>행동</dt><dd>다른 계산 경로로 값과 입력 지문을 대조하도록 요청했습니다.</dd></div><div><dt>결과</dt><dd>선택 표본의 FlowLens 15,313개 흐름 등 핵심 값이 일치했습니다.</dd></div></dl><a href="./evidence/projects/independent-audit.html">독립 대조 기록 보기 <span aria-hidden="true">↗</span></a></article>
-    <article class="field-note"><span class="field-note-index">03 / BUILD IN STAGES</span><h3>과정을 먼저 쌓습니다.</h3><dl><div><dt>상황</dt><dd>소개 사이트에 담을 공개 가능한 작업 근거가 필요했습니다.</dd></div><div><dt>행동</dt><dd>중급 이상 네트워크·보안 프로젝트 네 개를 먼저 진행하자고 정했습니다.</dd></div><div><dt>결과</dt><dd>네 프로젝트 뒤에 SampleScope를 더해 다섯 기록을 연결했습니다.</dd></div></dl><a href="./dashboard.html#experiments">프로젝트 5개 보기 <span aria-hidden="true">↗</span></a></article>
-  </div>
-  <p class="field-summary-credit">프로젝트 코드·실험 실행·분석은 AI가 수행했습니다. ASA는 학습 중인 주제이며 실습 성과로 집계하지 않습니다.</p>
-</section>
-<section class="destinations shell" id="destinations" aria-labelledby="destinations-title">
-  <div class="destination-heading"><div><p class="eyebrow">EXPLORE THE FIELD NOTES</p><h2 id="destinations-title">기록을 보고.<br><span>사람을 알아가고.</span></h2></div><p>무엇을 살펴봤는지, 어떤 기준을 세웠는지.<br>두 가지 이야기로 이어집니다.</p></div>
-  <div class="destination-grid">
-    <a class="destination-card dashboard-door" href="./dashboard.html"><div class="door-top"><span>01 / SELECTED WORK</span><span class="door-arrow" aria-hidden="true">↗</span></div><div class="dashboard-art" aria-hidden="true"><div class="visual-chart"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="visual-caption">OBSERVE. QUESTION. VERIFY.</span></div><div class="door-text"><h3>DASHBOARD</h3><p>결과 뒤에 있는 과정까지.</p><span>프로젝트 5개 · 결과 이미지 · 보고서와 소스</span></div></a>
-    <a class="destination-card about-door" href="./about.html"><div class="door-top"><span>02 / A LITTLE ABOUT ME</span><span class="door-arrow" aria-hidden="true">↗</span></div><div class="about-art" aria-hidden="true"><span class="about-monogram">fn.</span><div class="about-line"></div><span class="visual-caption">ALWAYS CURIOUS.</span></div><div class="door-text"><h3>ABOUT</h3><p>답보다 먼저, 좋은 질문을.</p><span>관심 분야 · 학습 방향 · 내가 정한 기준</span></div></a>
-  </div>
-  <div class="destination-note"><p>방향과 검토 기준은 제가 정하고, 코드와 분석은 AI가 수행했습니다.</p><a href="./evidence/projects/independent-audit.html">독립 대조 기록 보기 <span aria-hidden="true">↗</span></a></div>
-</section>
-</main>
-<footer class="site-footer"><div class="shell footer-inner"><span>FIELD NOTES <span class="footer-dot">·</span> 배우고, 기록하고, 다시 확인합니다.</span><a href="#top">BACK TO TOP ↑</a></div></footer>
-</body></html>
+  <nav class="chapter-nav" aria-label="공간 이동"><a href="#home" class="active" aria-current="location"><span>00</span><span class="chapter-label">처음</span></a><a href="#work"><span>01</span><span class="chapter-label">프로젝트</span></a><a href="#about"><span>02</span><span class="chapter-label">소개</span></a><a href="#private"><span>03</span><span class="chapter-label">개인 공간</span></a></nav>
+  <dialog id="project-dialog" aria-labelledby="dialog-title"><div class="dialog-shell"><div class="dialog-top"><span>PROJECT FILE / FIELD NOTES</span><button class="dialog-close" aria-label="프로젝트 닫기" type="button">닫기 <span aria-hidden="true">×</span></button></div><figure class="dialog-image"><img id="dialog-image" alt=""></figure><div class="dialog-body"><p class="dialog-kicker" id="dialog-kicker"></p><h2 id="dialog-title"></h2><p class="dialog-summary" id="dialog-summary"></p><div id="dialog-metrics" class="dialog-metrics"></div><div class="dialog-result"><h3>실제로 확인한 결과</h3><p id="dialog-result"></p></div><div class="dialog-scope"><h3>이 결과가 말하지 않는 것</h3><p id="dialog-scope"></p></div><div class="dialog-links"><a id="dialog-report" class="button-primary" href="#">실제 보고서 보기 ↗</a><a id="dialog-source" class="button-link" href="#">소스와 재현 과정 ↗</a></div><p class="dialog-credit">주제·검토 방향: 사용자 / 구현·실험·분석: AI</p></div></div></dialog>
+</body>
+</html>

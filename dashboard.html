@@ -2,157 +2,63 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="실제 공개 자료로 진행한 네트워크·보안 프로젝트 다섯 개의 결과 이미지, 보고서와 소스 코드.">
-  <title>DASHBOARD — FIELD NOTES</title>
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="stylesheet" href="./site.css?v=594674842a">
-  <link rel="stylesheet" href="./details.css?v=1ac3b88937">
-  <script src="./site.js?v=5daa4cfe54" defer></script>
+  <meta name="theme-color" content="#080b10">
+  <meta name="description" content="네트워크와 보안에 대한 호기심을 실제 자료와 검증 가능한 프로젝트로 이어가는 FIELD NOTES. 공개 소개와 패스키 개인 공간.">
+  <title>FIELD NOTES — Follow the Signal</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./portfolio.css?v=20261014">
+  <script src="./portfolio.js?v=20261014" type="module"></script>
 </head>
-<body class="detail-page dashboard-page" id="top">
+<body>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
-  <header class="site-header">
-    <div class="shell header-inner">
-      <a class="wordmark" href="./index.html" aria-label="FIELD NOTES 홈">
-        <span class="wordmark-mark" aria-hidden="true">FN</span>
-        <span>FIELD NOTES <span class="wordmark-index">/ PERSONAL LAB</span></span>
-      </a>
-      <nav aria-label="주요 메뉴"><a href="./index.html">HOME</a><a href="./dashboard.html" aria-current="page">DASHBOARD</a><a href="./about.html">ABOUT</a><a href="https://hope-passkey-portfolio.mo990025.chatgpt.site/#private" aria-label="개인 공간 · 패스키 (별도 사이트)">개인 공간 · 패스키 ↗</a><button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false" hidden>움직임 줄이기</button></nav>
-    </div>
-  </header>
-  <main id="main">
-
-    <section class="detail-hero shell" aria-labelledby="page-title">
-      <div class="detail-heading">
-        <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> DASHBOARD / PROJECT ARCHIVE</p>
-        <h1 id="page-title">실험의 결과를,<br><span>기록의 언어로.</span></h1>
-        <p class="detail-lede">흐름을 읽고, 로그를 해석하고, 결과를 다시 대조합니다.<br> 실제 공개 자료에서 출발한 다섯 프로젝트의 결과와 근거입니다.</p>
-        <div class="detail-jumps"><a href="#experiments">프로젝트 살펴보기 ↓</a><a href="./evidence/projects/review-2026-10-02.html">재검토 기록 ↗</a></div>
-      </div>
-      <aside class="archive-status" aria-label="기록 범위">
-        <div class="archive-status-top"><span>ARCHIVE / 2026.10</span><span class="archive-dot" aria-hidden="true"></span></div>
-        <p class="archive-caption">먼저 확인할 세 가지</p>
-        <dl class="archive-facts"><div><dt>자료의 출처</dt><dd>CTU-13 · Cowrie</dd></div><div><dt>작업의 구분</dt><dd>방향은 제가, 구현은 AI가</dd></div><div><dt>결과의 범위</dt><dd>보존한 표본의 재계산</dd></div></dl>
-        <a href="./evidence/projects/independent-audit.html">별도 계산 경로의 대조 기록 <span aria-hidden="true">↗</span></a>
-      </aside>
-    </section>
-    <section class="detail-stat-grid shell" aria-label="프로젝트 주요 결과">
-      <div><span class="detail-stat-label">FLOWLENS / 선택 구간</span><strong>15,313<small>flows</small></strong><p>CTU-13의 네트워크 흐름</p></div>
-      <div><span class="detail-stat-label">AUTHSENTRY / 세션 집계</span><strong>58,334<small>records</small></strong><p>Cowrie 세션 집계 레코드</p></div>
-      <div><span class="detail-stat-label">SAMPLESCOPE / 세 구간</span><strong>46,023<small>rows</small></strong><p>표본 위치에 따른 분포 비교</p></div>
-    </section>
-    <p class="detail-context shell">네트워크·보안 프로젝트 검토자에게 제가 정한 작업 기준과 실제 자료의 실험 결과를 보여줍니다. 수치는 서로 다른 집계 단위이며, 전체 인터넷의 비율을 뜻하지 않습니다.</p>
-    <section class="section experiments-section" id="experiments" aria-labelledby="experiments-title">
-      <div class="shell">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow section-index">SELECTED PROJECTS / 01—05</p>
-            <h2 id="experiments-title">실험에서 남긴 것</h2>
-          </div>
-          <p class="section-intro">AI가 실행하고 다시 계산한 실제 표본의 기록입니다. 결과 이미지에서 자세히 살펴보고 원본 근거까지 따라갈 수 있습니다.</p>
-        </div>
-
-        <div class="project-grid">
-          <article class="project-card">
-            <div class="project-meta"><span>01 / NETWORK</span><span class="project-mark" aria-hidden="true">↗</span></div>
-            <h3>FlowLens</h3>
-            <p class="project-subtitle">CTU-13 네트워크 흐름 분석</p>
-            <p class="project-result"><strong>15,313</strong>개 흐름 · 잘못된 행 0</p>
-            <figure class="project-visual">
-              <a class="project-image-link" href="./assets/flowlens-protocols.png" aria-haspopup="dialog" aria-label="FlowLens 프로토콜 차트 크게 보기"><img src="./assets/flowlens-protocols.png" width="1280" height="500" alt="선택한 CTU-13 2 MiB 표본의 프로토콜 흐름 수. UDP 12,728, TCP 2,360, ICMP 172, RTP 21, RTCP 14, IGMP 10, ARP 8." loading="lazy" decoding="async"></a>
-              <figcaption>실제 표본 · 15,313개 흐름 · 전체 capture 비율 추정 아님</figcaption>
-            </figure>
-            <p class="project-caveat">선택한 약 2 MiB 구간입니다. 전체 capture 비율이나 공격률을 뜻하지 않습니다.</p>
-            <div class="project-links"><a href="./evidence/projects/01-flowlens/flowlens-ctu13-report.html">보고서</a><a href="./evidence/projects/01-flowlens/flowlens-source.html">소스 코드</a><a href="https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/" target="_blank" rel="noopener noreferrer">원본 파일 목록</a></div>
-          </article>
-
-          <article class="project-card">
-            <div class="project-meta"><span>02 / SECURITY</span><span class="project-mark" aria-hidden="true">⌁</span></div>
-            <h3>AuthSentry</h3>
-            <p class="project-subtitle">Cowrie SSH 세션 집계</p>
-            <p class="project-result"><strong>58,334</strong>개 세션 집계 · 실패 53,602</p>
-            <figure class="project-visual">
-              <a class="project-image-link" href="./assets/authsentry-login-events.png" aria-haspopup="dialog" aria-label="AuthSentry 로그인 이벤트 차트 크게 보기"><img src="./assets/authsentry-login-events.png" width="1280" height="500" alt="Cowrie 세션 집계에 포함된 로그인 이벤트: 실패 53,602건, 성공 4,645건, 총 58,247건. 58,334는 세션 집계 수이며 로그인 이벤트 수와 별개." loading="lazy" decoding="async"></a>
-              <figcaption>로그인 이벤트 수와 세션 집계 수를 구분 · first_seen 날짜 귀속</figcaption>
-            </figure>
-            <p class="project-caveat">압축 파일 첫 2 MiB 표본입니다. Honeypot 관측은 인터넷 전체를 대표하지 않습니다.</p>
-            <div class="project-links"><a href="./evidence/projects/02-authsentry/authsentry-cowrie-report.html">보고서</a><a href="./evidence/projects/02-authsentry/authsentry-source.html">소스 코드</a><a href="https://zenodo.org/records/21260400" target="_blank" rel="noopener noreferrer">자료 설명</a></div>
-          </article>
-
-          <article class="project-card">
-            <div class="project-meta"><span>03 / PRIVACY</span><span class="project-mark" aria-hidden="true">◌</span></div>
-            <h3>SecretFence</h3>
-            <p class="project-subtitle">공개 후보 파일의 패턴 검사 · 2026-10-02 기록</p>
-            <p class="project-result"><strong>67</strong>개 텍스트 검사 · 패턴 0건 · PNG 6개 제외</p>
-            <figure class="project-visual">
-              <a class="project-image-link" href="./assets/secretfence-scan-scope.png" aria-haspopup="dialog" aria-label="SecretFence 검사 범위 차트 크게 보기"><img src="./assets/secretfence-scan-scope.png" width="1280" height="500" alt="2026년 10월 2일 당시 사이트의 텍스트 파일 67개에서 지정한 비밀값 패턴 일치 0건, PNG 이미지 6개는 바이너리라 제외, 읽기 오류 0건, Git 이력은 검사하지 않음." loading="lazy" decoding="async"></a>
-              <figcaption>2026-10-02 검사: 텍스트 67개 · PNG 6개 제외 · Git 이력 미검사</figcaption>
-            </figure>
-            <p class="project-caveat">2026-10-02 당시 파일의 지정 패턴 검사입니다. 이후 페이지 변경은 반영하지 않았습니다. PNG 6개와 Git 이력은 검사 범위 밖입니다.</p>
-            <div class="project-links"><a href="./security-scan.html">2026-10-02 검사 기록</a><a href="./evidence/projects/03-secretfence/secretfence-release-scan.html">이전 도구 실행 기록</a><a href="./evidence/projects/03-secretfence/secretfence-source.html">소스 코드</a></div>
-          </article>
-
-          <article class="project-card">
-            <div class="project-meta"><span>04 / RELEASE</span><span class="project-mark" aria-hidden="true">✓</span></div>
-            <h3>PublishGate</h3>
-            <p class="project-subtitle">보고서와 증거 manifest 대조</p>
-            <p class="project-result"><strong>2 / 2</strong> 보고서 검증 통과</p>
-            <figure class="project-visual">
-              <a class="project-image-link" href="./assets/publishgate-report-checks.png" aria-haspopup="dialog" aria-label="PublishGate 보고서 검증 차트 크게 보기"><img src="./assets/publishgate-report-checks.png" width="1280" height="500" alt="PublishGate가 FlowLens 15,313개 흐름 보고서와 AuthSentry 58,334개 세션 보고서의 해시, 입력 지문, 출처, 표본 범위, 비식별화 항목을 검증해 두 건 모두 통과." loading="lazy" decoding="async"></a>
-              <figcaption>두 증거 패키지 검증 통과 · 원시 데이터 재계산은 아님</figcaption>
-            </figure>
-            <p class="project-caveat">해시와 출처 연결을 확인했습니다. 원시 자료 수치를 재계산하는 도구는 아닙니다.</p>
-            <div class="project-links"><a href="./evidence/projects/04-publishgate/publishgate-report.html">검증 결과</a><a href="./evidence/projects/04-publishgate/publishgate-source.html">소스 코드</a><a href="./evidence/projects/04-publishgate/evidence-manifest-data.html">manifest</a></div>
-          </article>
-
-          <article class="project-card featured-project">
-            <div class="project-meta"><span>05 / SAMPLE SENSITIVITY</span><span class="new-tag">SAMPLE COMPARISON</span></div>
-            <h3>SampleScope</h3>
-            <p class="project-subtitle">어디를 보느냐에 따라, 결과는 얼마나 달라질까?</p>
-            <p class="project-result"><strong>46,023</strong>개 원본 행 · 3개 실제 구간 비교</p>
-            <figure class="project-visual"><a class="project-image-link" href="./assets/samplescope-comparison.png" aria-haspopup="dialog" aria-label="SampleScope 세 구간 비교 차트 크게 보기"><img src="./assets/samplescope-comparison.png" width="1280" height="500" alt="CTU-13 시작 15,279행, 중간 15,313행, 끝 15,431행. From-Botnet 발신 라벨은 각각 0, 128, 0건. 시작 구간 비 IP 주소 1행은 FlowLens 교차 검증에서 제외." loading="lazy" decoding="async"></a><figcaption>원본 SHA-256 대조 · IPv4/IPv6 행은 FlowLens와 별도 집계 비교</figcaption></figure>
-            <p class="project-caveat">비무작위 구간 비교입니다. 라벨 0건은 안전 판정이 아니며, 전체 공격률을 추정하지 않습니다. 시작 구간 IPX/SPX 1행은 FlowLens 분석 범위 밖입니다.</p>
-            <div class="project-links"><a href="./evidence/projects/05-samplescope/samplescope-report.html">실험 보고서</a><a href="./evidence/projects/05-samplescope/samplescope-source.html">소스 코드</a><a href="./evidence/projects/05-samplescope/samplescope-result-data.html">전체 집계·해시</a></div>
-          </article>
-        </div>
-        <article class="project-card learning-card" aria-labelledby="learning-title">
-          <figure class="project-visual learning-visual">
-            <a class="project-image-link" href="./assets/gns3-asa-learning.png" aria-haspopup="dialog" aria-label="GNS3와 ASA 학습 상태 이미지 크게 보기"><img src="./assets/gns3-asa-learning.png" width="1280" height="500" alt="GNS3와 ASA 방화벽을 학습 중이며, 실제 실습 구성이나 검증 결과는 아직 기록하지 않았다는 상태 안내 이미지." loading="lazy" decoding="async"></a>
-            <figcaption>학습 관심 주제 · 장비 환경 구성과 추가 실습은 보류</figcaption>
-          </figure>
-          <div class="learning-copy">
-            <div class="project-meta"><span>06 / LEARNING</span><span class="project-mark" aria-hidden="true">◎</span></div>
-            <h3 id="learning-title">ASA Firewall / Learning</h3>
-            <p class="project-subtitle">현재 배우고 있는 네트워크·방화벽 주제</p>
-            <p class="project-result"><strong>학습 중</strong> · 구성·검증 결과는 아직 기록 전</p>
-            <p class="project-caveat">실제 실습 자료를 확인하기 전까지 토폴로지, 정책, 통과 수치 같은 결과는 주장하지 않습니다.</p>
-          </div>
-        </article>
-        <p class="project-credit">다섯 프로젝트의 코드·분석·보고서는 AI가 수행했습니다. ASA는 학습 관심 주제이며 실습 결과로 집계하지 않습니다.</p>
-      </div>
-    </section>
-
-
-    <section class="detail-next shell" aria-labelledby="next-title">
-      <div><p class="eyebrow">NEXT / KEEP EXPLORING</p><h2 id="next-title">프로젝트 뒤의 기준을 만나보세요.</h2></div>
-      <a class="detail-next-link" href="./about.html">ABOUT <span aria-hidden="true">↗</span></a>
-    </section>
-  </main>
-  <footer class="site-footer">
-    <div class="shell footer-inner"><span>FIELD NOTES / AI와 함께 확인한 실제 자료의 기록</span><div class="detail-footer-links"><a href="./index.html">홈으로</a><a href="#top">맨 위로 ↑</a></div></div>
-  </footer>
-  <dialog class="image-dialog" id="project-image-dialog" aria-labelledby="image-dialog-title">
-    <h2 class="visually-hidden" id="image-dialog-title">프로젝트 결과 이미지 확대 보기</h2>
-    <div class="image-dialog-toolbar">
-      <button class="image-dialog-close" type="button" aria-label="이미지 확대 닫기" autofocus>닫기 <span aria-hidden="true">×</span></button>
-    </div>
-    <figure class="image-dialog-figure">
-      <img class="image-dialog-preview" alt="">
-      <figcaption class="image-dialog-caption"></figcaption>
-    </figure>
-    <p class="image-dialog-hint">Esc 또는 닫기 버튼을 누르면 페이지로 돌아갑니다.</p>
-  </dialog>
+  <canvas id="spatial-canvas" aria-label="네트워크 구조와 프로젝트가 떠 있는 3D 작업 공간"></canvas>
+  <div class="scene-vignette" aria-hidden="true"></div>
+  <div class="scene-grid" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"><span id="progress-fill"></span></div>
+  <div class="site-shell">
+    <header class="masthead">
+      <a class="brand" href="#home" aria-label="FIELD NOTES 홈"><span class="brand-mark">FN<span>↗</span></span><span class="brand-caption">FIELD NOTES<br><small>PERSONAL RESEARCH SPACE</small></span></a>
+      <nav class="top-nav" aria-label="주 메뉴"><a href="#work">프로젝트</a><a href="#about">나의 소개</a><a href="#private">개인 공간 <span aria-hidden="true">↗</span></a></nav>
+      <div class="header-controls"><button id="motion-toggle" type="button" aria-pressed="false" aria-label="움직임 줄이기">모션 ON</button><button id="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="메뉴 열기">메뉴 <span aria-hidden="true">＋</span></button></div>
+    </header>
+    <nav id="mobile-menu" class="mobile-menu" aria-label="모바일 메뉴" hidden><a href="#home">처음으로</a><a href="#work">프로젝트</a><a href="#about">나의 소개</a><a href="#private">개인 공간</a></nav>
+    <main id="main">
+      <section id="home" class="hero chapter" aria-labelledby="hero-title">
+        <p class="hero-index"><span class="status-dot" aria-hidden="true"></span> NETWORK / SECURITY / CURIOSITY</p>
+        <h1 id="hero-title" class="hero-title"><span>FOLLOW</span><span>THE <em>SIGNAL.</em></span></h1>
+        <div class="hero-bottom"><div><p class="hero-copy">연결을 탐험하고,<br>근거를 남깁니다.</p><div class="hero-actions"><a class="button-primary" id="enter-work" href="#orbit-stage">작업 공간으로 들어가기 <span aria-hidden="true">↗</span></a><a class="button-link" href="#about">나의 이야기 읽기 <span aria-hidden="true">↓</span></a></div></div><p class="hero-aside">네트워크와 보안을 배우며<br>실제 자료에서 질문하고<br>확인할 수 있는 결과로 답합니다.<span>EXPLORE A PERSONAL LAB / 2026</span></p></div>
+        <a class="scroll-cue" href="#work"><span aria-hidden="true">↓</span> SCROLL TO EXPLORE <small>스크롤하거나 프로젝트를 선택하세요</small></a>
+        <p class="loading-status" role="status">작업 공간을 불러오는 중</p>
+        <p class="scene-note" hidden>입체 화면을 사용할 수 없어 정적 화면으로 표시합니다. 프로젝트와 모든 메뉴는 계속 사용할 수 있습니다.</p>
+      </section>
+      <section id="work" class="work chapter" aria-labelledby="work-title">
+        <div class="section-header js-reveal"><div><p class="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">질문에서 시작해.<br><span>결과로 이어지다.</span></h2></div><p class="section-copy">실제 공개 자료로 진행한 다섯 프로젝트.<br>숫자 뒤의 과정과 한계까지 함께 열어보세요.</p></div>
+        <div id="orbit-stage" class="orbit-stage" aria-label="3D 프로젝트 탐색 공간"><p class="orbit-caption"><span>EXPLORE THE CONSTELLATION</span>떠 있는 프로젝트를 선택해 보세요.<br><small>아래 목록에서도 같은 결과를 열 수 있습니다.</small></p></div>
+        <div class="project-filters" role="group" aria-label="프로젝트 분류"><button class="active" type="button" data-filter="all" aria-pressed="true">전체 <span>05</span></button><button type="button" data-filter="network" aria-pressed="false">네트워크</button><button type="button" data-filter="security" aria-pressed="false">보안</button><button type="button" data-filter="tooling" aria-pressed="false">검증 도구</button></div>
+        <p id="filter-status" class="sr-only" role="status"></p>
+        <div id="project-grid" class="project-grid"></div>
+        <noscript><div class="noscript-projects"><h3>실제 프로젝트 기록</h3><a href="./evidence/projects/01-flowlens/flowlens-ctu13-report.html">FlowLens</a><a href="./evidence/projects/02-authsentry/authsentry-cowrie-report.html">AuthSentry</a><a href="./evidence/projects/03-secretfence/secretfence-release-scan.html">SecretFence</a><a href="./evidence/projects/04-publishgate/publishgate-report.html">PublishGate</a><a href="./evidence/projects/05-samplescope/samplescope-report.html">SampleScope</a></div></noscript>
+        <div class="work-footnote"><span>REAL INPUT. CLEAR LIMITS.</span><a href="./evidence/projects/independent-audit.html">독립 재계산 기록 보기 ↗</a><p>주제와 검토 기준은 제가 정했고, 코드·실험 실행·분석은 AI가 수행했습니다.</p></div>
+      </section>
+      <section id="about" class="about chapter" aria-labelledby="about-title">
+        <div class="about-heading js-reveal"><p class="eyebrow">02 / A LITTLE ABOUT ME</p><h2 id="about-title">좋은 질문이<br><span>다음 연결을 만듭니다.</span></h2><p class="about-copy">네트워크와 보안에 관심이 있고, 지금은 ASA 방화벽을 배우고 있습니다. 그럴듯한 결과보다 실제 자료와 다시 확인할 수 있는 근거를 중요하게 생각합니다.</p></div>
+        <div id="interest-list" class="interest-list"></div>
+        <div class="principles-heading"><p class="eyebrow">THE WAY I WORK</p><h3>제가 선택한 세 가지 기준.</h3></div>
+        <div id="principle-grid" class="principle-grid"></div>
+        <aside id="learning-title" class="learning-note"><span class="status-dot" aria-hidden="true"></span><div><h3>지금 배우는 것 · ASA 방화벽</h3><p>장비 환경 구성과 실습은 보류 상태입니다. 아직 실제 ASA 실습 결과를 기록하지 않았으며 프로젝트 성과로 집계하지 않습니다.</p><a href="./evidence/projects/experience-log.html">학습·경험 기록 보기 ↗</a></div><span class="learning-stamp">IN PROGRESS</span></aside>
+        <aside class="authorship-note"><p class="eyebrow">COLLABORATION / CLEAR ROLES</p><h3>AI와 함께, 역할은 분명하게.</h3><p>저는 주제, 난이도, 실제 자료 사용과 재검토 방향을 정했습니다. 코드 작성, 실험 실행, 분석과 사이트 구현은 AI가 수행했습니다. 이를 제가 독립적으로 작성한 코드나 완료한 장비 실습 경력으로 소개하지 않습니다.</p></aside>
+        <aside class="authorship-note"><p class="eyebrow">PUBLIC BY CHOICE</p><h3>공개하는 것과, 남겨두는 것.</h3><p>제가 정한 작업 기준, 실제 공개 자료의 집계값과 한계, 코드와 보고서를 공개합니다. 개인 연락처·기관·정확한 위치와 원시 로그의 식별자·비밀값은 포함하지 않습니다. 원시 데이터는 배포 폴더 밖에 두고 FlowLens의 주소는 별칭으로 표시합니다.</p></aside>
+      </section>
+      <section id="private" class="private chapter" aria-labelledby="private-title">
+        <div class="private-orbit" aria-hidden="true"><span>PRIVATE</span><div>↗</div><span>SPACE</span></div>
+        <div class="private-copy js-reveal"><p class="eyebrow">03 / BEYOND THE PUBLIC</p><h2 id="private-title">여기부터는,<br><span>나만의 공간.</span></h2><p>공개 소개는 누구나 읽을 수 있습니다.<br>개인 공간은 본인의 패스키로만 열립니다.</p><a class="button-primary" href="https://hope-passkey-portfolio.mo990025.chatgpt.site/#private" aria-label="패스키 개인 공간 열기 · 별도 인증 사이트">패스키로 개인 공간 열기 <span aria-hidden="true">↗</span></a><div class="private-details"><p><span>01 / ACCESS</span>기기의 잠금 해제로 로그인합니다. 비밀번호는 사용하지 않습니다.</p><p><span>02 / CONTENT</span>프로젝트 메모·지원처 목록·회고는 기능 확인용 가상 자료입니다.</p><p><span>03 / YOUR KEYS</span>기존 인증 사이트에서 패스키를 관리합니다. 모든 키를 잃으면 다시 접근할 수 없으므로 다른 저장소에도 키를 보관하세요.</p></div><p class="private-origin-note">별도 인증 사이트로 이동합니다. 기존 패스키와 계정으로 이용하세요.</p></div>
+      </section>
+    </main>
+    <footer class="site-footer"><a class="brand" href="#home">FIELD NOTES <span>↗</span></a><p>배우고, 기록하고, 다시 확인합니다.</p><div><a href="./TASK08.md">인증 구현 설명서</a><a href="https://github.com/H0P2/field-notes-network-security">공개 소스 ↗</a><a href="#home">맨 위로 ↑</a></div><small>PUBLIC NOTES / PRIVATE SPACE · 2026</small></footer>
+  </div>
+  <nav class="chapter-nav" aria-label="공간 이동"><a href="#home" class="active" aria-current="location"><span>00</span><span class="chapter-label">처음</span></a><a href="#work"><span>01</span><span class="chapter-label">프로젝트</span></a><a href="#about"><span>02</span><span class="chapter-label">소개</span></a><a href="#private"><span>03</span><span class="chapter-label">개인 공간</span></a></nav>
+  <dialog id="project-dialog" aria-labelledby="dialog-title"><div class="dialog-shell"><div class="dialog-top"><span>PROJECT FILE / FIELD NOTES</span><button class="dialog-close" aria-label="프로젝트 닫기" type="button">닫기 <span aria-hidden="true">×</span></button></div><figure class="dialog-image"><img id="dialog-image" alt=""></figure><div class="dialog-body"><p class="dialog-kicker" id="dialog-kicker"></p><h2 id="dialog-title"></h2><p class="dialog-summary" id="dialog-summary"></p><div id="dialog-metrics" class="dialog-metrics"></div><div class="dialog-result"><h3>실제로 확인한 결과</h3><p id="dialog-result"></p></div><div class="dialog-scope"><h3>이 결과가 말하지 않는 것</h3><p id="dialog-scope"></p></div><div class="dialog-links"><a id="dialog-report" class="button-primary" href="#">실제 보고서 보기 ↗</a><a id="dialog-source" class="button-link" href="#">소스와 재현 과정 ↗</a></div><p class="dialog-credit">주제·검토 방향: 사용자 / 구현·실험·분석: AI</p></div></div></dialog>
 </body>
 </html>
