@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 
 const PROJECTS = [
-  ['FlowLens', '01', 'NETWORK FLOWS', '#98fff0'],
-  ['AuthSentry', '02', 'AUTHENTICATION', '#bdadff'],
-  ['SecretFence', '03', 'SECRET DETECTION', '#ffacbd'],
-  ['PublishGate', '04', 'RELEASE INTEGRITY', '#ffe6a3'],
-  ['SampleScope', '05', 'DATA FORENSICS', '#b4ddff'],
+  ['FlowLens', '01', 'NETWORK FLOWS', '#cec6b8'],
+  ['AuthSentry', '02', 'AUTHENTICATION', '#cec6b8'],
+  ['SecretFence', '03', 'SECRET DETECTION', '#cec6b8'],
+  ['PublishGate', '04', 'RELEASE INTEGRITY', '#cec6b8'],
+  ['SampleScope', '05', 'DATA FORENSICS', '#cec6b8'],
 ];
 const clamp = THREE.MathUtils.clamp;
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
@@ -25,12 +25,12 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
   };
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
   } catch { fallback('webgl-unavailable'); return noop; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.22;
+  renderer.toneMappingExposure = 1.05;
   renderer.setClearColor(0x04070c, 0);
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x040911, 0.026);
@@ -59,38 +59,39 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
     const object = new THREE.Sprite(material(THREE.SpriteMaterial, { map: glowTexture, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false }));
     object.scale.set(size, size, 1); parent.add(object); return object;
   };
-  scene.add(new THREE.HemisphereLight(0xbddfff, 0x251743, 2.6));
-  const key = new THREE.DirectionalLight(0xbcfff4, 4.2); key.position.set(4, 7, 8); scene.add(key);
-  const violetLight = new THREE.PointLight(0xb671ff, 38, 20, 2); violetLight.position.set(0, 2, 4); scene.add(violetLight);
-  const rimLight = new THREE.DirectionalLight(0xab71ff, 3.8); rimLight.position.set(-5, 3, -3); scene.add(rimLight);
+  scene.add(new THREE.HemisphereLight(0xe9e4da, 0x101114, 1.3));
+  const key = new THREE.DirectionalLight(0xfff1dd, 5); key.position.set(-4, 6, 8); scene.add(key);
+  const fill = new THREE.DirectionalLight(0x9cabb9, 2.4); fill.position.set(5, 0, 3); scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xffffff, 6); rim.position.set(1, 4, -5); scene.add(rim);
 
-  // Faceted core and node network: real depth, not a background image.
-  const core = new THREE.Group(); core.position.set(0, 0.9, -1.1); root.add(core);
-  const crystal = mesh(new THREE.IcosahedronGeometry(2.45, 0), material(THREE.MeshPhysicalMaterial, {
-    color: 0x668fb1, metalness: 0.72, roughness: 0.28, flatShading: true, transparent: true, opacity: 0.82,
-    emissive: 0x29284f, emissiveIntensity: 0.24, clearcoat: 0.75, clearcoatRoughness: 0.18, side: THREE.DoubleSide, depthWrite: true,
-  }), core);
-  crystal.scale.set(0.9, 1.35, 0.9);
-  const frame = wire(new THREE.IcosahedronGeometry(2.45, 0), 0x9bfff0, 0.88, core); frame.scale.copy(crystal.scale);
-  const innerFrame = wire(new THREE.IcosahedronGeometry(1.35, 1), 0xb78dff, 0.55, core); innerFrame.rotation.z = 0.36;
-  const nodeGeometry = geometry(new THREE.IcosahedronGeometry(0.075, 0));
-  const coreNodeMaterial = glowMat(0xa7fff0, 0.9);
-  const nodeShell = new THREE.IcosahedronGeometry(2.45, 0);
-  const vertices = nodeShell.getAttribute('position');
-  const unique = new Set();
-  for (let i = 0; i < vertices.count; i++) {
-    const p = new THREE.Vector3().fromBufferAttribute(vertices, i); const id = p.toArray().map(n => n.toFixed(3)).join(',');
-    if (unique.has(id)) continue; unique.add(id);
-    const node = new THREE.Mesh(nodeGeometry, coreNodeMaterial); node.position.copy(p).multiply(crystal.scale); core.add(node);
+  // Continuous folded metal ribbon. Geometry carries the visual, without neon outlines.
+  const core = new THREE.Group(); core.position.set(0, 0.9, -1.1); core.rotation.z = -0.38; root.add(core);
+  const ribbonGeo = new THREE.BufferGeometry();
+  const positions = [], indices = [], uvs = [];
+  const steps = 240, cross = 24;
+  for (let i = 0; i <= steps; i++) {
+    const u = i / steps * Math.PI * 2;
+    for (let j = 0; j <= cross; j++) {
+      const v = (j / cross - 0.5) * 1.5;
+      const twist = u * 1.5 + 0.25;
+      const radius = 2.15 + v * Math.cos(twist) + 0.16 * Math.cos(u * 3);
+      positions.push(radius * Math.cos(u), radius * Math.sin(u) * 1.2, v * Math.sin(twist) + 0.42 * Math.sin(u * 2));
+      uvs.push(i / steps, j / cross);
+      if (i < steps && j < cross) {
+        const a = i * (cross + 1) + j, b = a + cross + 1;
+        indices.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+    }
   }
-  nodeShell.dispose();
-  const centerGlow = glow(7.2, 0x6784ed, core, 0.48);
-  const cyanAura = glow(5, 0x42d2c2, core, 0.22); cyanAura.position.set(1.3, 0.9, 0.6);
-  const ringGroup = new THREE.Group(); root.add(ringGroup); ringGroup.position.copy(core.position);
-  for (let i = 0; i < 3; i++) {
-    const ring = mesh(new THREE.TorusGeometry(3.1 + i * 0.4, 0.008, 3, 100), glowMat(i === 1 ? 0xc090ff : 0x76fff0, 0.34), ringGroup);
-    ring.rotation.set(Math.PI / 2 + i * 0.42, i * 0.45, i * 0.32);
-  }
+  ribbonGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  ribbonGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  ribbonGeo.setIndex(indices); ribbonGeo.computeVertexNormals();
+  const sculptureMaterial = material(THREE.MeshPhysicalMaterial, {
+    color: 0xaeb1b2, metalness: 0.68, roughness: 0.29, clearcoat: 0.38,
+    clearcoatRoughness: 0.25, side: THREE.DoubleSide, transparent: true, opacity: 1,
+  });
+  const sculpture = mesh(ribbonGeo, sculptureMaterial, core);
+  sculpture.rotation.set(0.35, -0.45, 0);
 
   // Compact workstation with a luminous screen that the scroll camera approaches.
   const pc = new THREE.Group(); pc.position.set(0, -1.3, 2.45); root.add(pc);
@@ -101,53 +102,44 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
   const screenContext = screenCanvas.getContext('2d');
   if (screenContext) {
     const bg = screenContext.createLinearGradient(0, 0, 1024, 640);
-    bg.addColorStop(0, '#132134'); bg.addColorStop(1, '#061b26');
+    bg.addColorStop(0, '#242629'); bg.addColorStop(1, '#111315');
     screenContext.fillStyle = bg; screenContext.fillRect(0, 0, 1024, 640);
-    screenContext.strokeStyle = '#6ffff0'; screenContext.lineWidth = 2; screenContext.strokeRect(20, 20, 984, 600);
+    screenContext.strokeStyle = '#807b72'; screenContext.lineWidth = 2; screenContext.strokeRect(20, 20, 984, 600);
     screenContext.font = '600 65px system-ui, sans-serif'; screenContext.fillStyle = '#f0fffd'; screenContext.fillText('FIELD NOTES', 60, 111);
-    screenContext.font = '21px monospace'; screenContext.fillStyle = '#99fff0'; screenContext.fillText('NETWORK / SECURITY / PRIVATE SPACE', 64, 157);
+    screenContext.font = '21px monospace'; screenContext.fillStyle = '#bcb5a7'; screenContext.fillText('NETWORK / SECURITY / PRIVATE SPACE', 64, 157);
     PROJECTS.forEach((project, i) => {
       const y = 225 + i * 67;
-      screenContext.fillStyle = i % 2 ? '#0e2531' : '#132c38'; screenContext.fillRect(50, y - 35, 924, 57);
-      screenContext.shadowColor = project[3]; screenContext.shadowBlur = 12;
+      screenContext.fillStyle = i % 2 ? '#202224' : '#26282a'; screenContext.fillRect(50, y - 35, 924, 57);
+      screenContext.shadowColor = project[3]; screenContext.shadowBlur = 0;
       screenContext.fillStyle = project[3]; screenContext.font = '25px monospace'; screenContext.fillText(project[1], 70, y);
       screenContext.font = '500 31px system-ui, sans-serif'; screenContext.fillText(project[0], 140, y);
       screenContext.shadowBlur = 0; screenContext.font = '19px monospace'; screenContext.fillText(project[2], 520, y);
       screenContext.fillText('↗', 910, y);
     });
-    screenContext.fillStyle = '#8cffeb'; screenContext.font = '17px monospace'; screenContext.fillText('● SYSTEM ONLINE   /   FIVE LIVE RESEARCH MODULES', 64, 600);
+    screenContext.fillStyle = '#bcb5a7'; screenContext.font = '17px monospace'; screenContext.fillText('SELECTED RESEARCH / 2026', 64, 600);
   }
   const screenTexture = new THREE.CanvasTexture(screenCanvas); screenTexture.colorSpace = THREE.SRGBColorSpace; textures.add(screenTexture);
   const display = mesh(new THREE.PlaneGeometry(2.48, 1.48), material(THREE.MeshBasicMaterial, { map: screenTexture, color: 0xffffff }), pc);
   display.position.set(0, 0.43, 0.081);
-  const displayWire = wire(new THREE.BoxGeometry(2.67, 1.67, 0.15), 0x8aecdd, 0.65, pc); displayWire.position.copy(monitor.position);
+  const displayWire = wire(new THREE.BoxGeometry(2.67, 1.67, 0.15), 0x8b8983, 0.65, pc); displayWire.position.copy(monitor.position);
   const stand = mesh(new THREE.BoxGeometry(0.16, 0.56, 0.14), pcMetal, pc); stand.position.y = -0.42;
   const foot = mesh(new THREE.BoxGeometry(0.84, 0.05, 0.47), pcMetal, pc); foot.position.set(0, -0.64, 0.12);
   const keyboard = wire(new THREE.BoxGeometry(1.3, 0.035, 0.42), 0x8ab6c3, 0.45, pc); keyboard.position.set(0, -0.59, 0.45);
-  const screenHalo = glow(3.8, 0x75d8ed, pc, 0.18); screenHalo.position.set(0, 0.43, -0.1);
+  const screenHalo = glow(3.8, 0xc4beb3, pc, 0.18); screenHalo.position.set(0, 0.43, -0.1);
 
   const cards = [], clickable = [], cardPositions = [], cardMaterials = [];
   function labelTexture(project) {
     const c = document.createElement('canvas'); c.width = 768; c.height = 384;
     const ctx = c.getContext('2d');
     if (ctx) {
-      ctx.fillStyle = '#061319'; ctx.fillRect(0, 0, 768, 384);
-      ctx.strokeStyle = project[3]; ctx.lineWidth = 3; ctx.strokeRect(3, 3, 762, 378);
-      ctx.globalAlpha = 0.25;
-      for (let i = 0; i < 15; i++) { ctx.beginPath(); ctx.moveTo(i * 64, 0); ctx.lineTo(i * 64, 384); ctx.stroke(); }
-      for (let i = 1; i < 8; i++) { ctx.beginPath(); ctx.moveTo(0, i * 48); ctx.lineTo(768, i * 48); ctx.stroke(); }
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = project[3]; ctx.font = '22px monospace'; ctx.fillText(`${project[1]} / FIELD NOTES`, 36, 49);
-      ctx.font = '600 65px system-ui, sans-serif'; ctx.fillStyle = '#f0fffc'; ctx.fillText(project[0], 34, 143);
-      ctx.font = '20px monospace'; ctx.fillStyle = project[3]; ctx.fillText(project[2], 38, 182);
-      const phase = Number(project[1]);
-      ctx.beginPath();
-      for (let x = 38; x <= 720; x += 8) {
-        const y = 265 + Math.sin(x * (0.02 + phase * 0.003)) * 25 + Math.sin(x * 0.05) * 9;
-        if (x === 38) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.lineWidth = 3; ctx.strokeStyle = project[3]; ctx.stroke();
-      ctx.font = '18px monospace'; ctx.fillText('OPEN PROJECT  ↗', 38, 346);
+      ctx.fillStyle = '#191b1d'; ctx.fillRect(0, 0, 768, 384);
+      ctx.strokeStyle = '#595850'; ctx.lineWidth = 1; ctx.strokeRect(1, 1, 766, 382);
+      ctx.fillStyle = '#a8a398'; ctx.font = '20px monospace'; ctx.fillText('SELECTED WORK', 40, 55);
+      ctx.font = '300 116px system-ui, sans-serif'; ctx.fillStyle = '#343638'; ctx.fillText(project[1], 578, 142);
+      ctx.font = '400 62px system-ui, sans-serif'; ctx.fillStyle = '#eeeae1'; ctx.fillText(project[0], 38, 202);
+      ctx.font = '18px monospace'; ctx.fillStyle = '#a8a398'; ctx.fillText(project[2], 42, 246);
+      ctx.beginPath(); ctx.moveTo(40, 290); ctx.lineTo(728, 290); ctx.stroke();
+      ctx.font = '18px monospace'; ctx.fillText('VIEW CASE STUDY', 42, 342); ctx.fillText('↗', 700, 342);
     }
     const texture = new THREE.CanvasTexture(c); texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); textures.add(texture); return texture;
@@ -165,22 +157,22 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
   // Private portal sits behind the network and becomes the final camera destination.
   const portal = new THREE.Group(); portal.position.set(0, 0.8, -3.0); root.add(portal);
   const portalBack = mesh(new THREE.PlaneGeometry(3.4, 4.7), material(THREE.MeshBasicMaterial, { color: 0x02050b, transparent: true, opacity: 0, depthWrite: false }), portal);
-  const portalFrame = wire(new THREE.BoxGeometry(3.4, 4.7, 0.08), 0xaa9cfa, 0, portal);
-  const portalInset = wire(new THREE.BoxGeometry(3.15, 4.44, 0.05), 0x78c5d3, 0, portal); portalInset.position.z = 0.06;
+  const portalFrame = wire(new THREE.BoxGeometry(3.4, 4.7, 0.08), 0xb6ada0, 0, portal);
+  const portalInset = wire(new THREE.BoxGeometry(3.15, 4.44, 0.05), 0x827f78, 0, portal); portalInset.position.z = 0.06;
   const lock = new THREE.Group(); portal.add(lock); lock.position.z = 0.12;
   const lockBody = wire(new THREE.BoxGeometry(0.63, 0.49, 0.04), 0xdce7ff, 0, lock); lockBody.position.y = -0.08;
   const lockArc = mesh(new THREE.TorusGeometry(0.22, 0.014, 5, 28, Math.PI), glowMat(0xdce7ff, 0), lock); lockArc.position.y = 0.17;
-  const portalHalo = glow(6.2, 0x7058a0, portal, 0); portalHalo.position.z = -0.08;
+  const portalHalo = glow(6.2, 0x9a9285, portal, 0); portalHalo.position.z = -0.08;
 
   // One draw call for the neon particle field, with deterministic seeded positions.
   let seed = 8917; const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  const particleData = new Float32Array(180 * 3);
-  for (let i = 0; i < 180; i++) {
+  const particleData = new Float32Array(36 * 3);
+  for (let i = 0; i < 36; i++) {
     particleData[i * 3] = (rand() - 0.5) * 23; particleData[i * 3 + 1] = (rand() - 0.5) * 16;
     particleData[i * 3 + 2] = -rand() * 17 + 4;
   }
   const particleGeo = geometry(new THREE.BufferGeometry()); particleGeo.setAttribute('position', new THREE.BufferAttribute(particleData, 3));
-  const particles = new THREE.Points(particleGeo, material(THREE.PointsMaterial, { color: 0xaad7f7, size: 0.06, map: glowTexture, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false })); root.add(particles);
+  const particles = new THREE.Points(particleGeo, material(THREE.PointsMaterial, { color: 0xaad7f7, size: 0.025, map: glowTexture, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false })); root.add(particles);
   const cameraPoint = new THREE.Vector3(), targetPoint = new THREE.Vector3();
   const raycaster = new THREE.Raycaster();
   const stops = [0, 0.25, 0.6, 1];
@@ -205,11 +197,8 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
     camera.position.copy(cameraPoint); camera.lookAt(targetPoint);
     const orbital = smooth(0.29, 0.55, progress) * (1 - smooth(0.77, 0.96, progress));
     const coreVisibility = 1 - smooth(0.68, 0.96, progress);
-    crystal.material.opacity = 0.82 * coreVisibility; frame.material.opacity = 0.88 * coreVisibility;
-    innerFrame.material.opacity = 0.55 * coreVisibility; coreNodeMaterial.opacity = coreVisibility * 0.9;
-    centerGlow.material.opacity = coreVisibility * 0.48; cyanAura.material.opacity = coreVisibility * 0.22;
-    ringGroup.children.forEach(ring => { ring.material.opacity = coreVisibility * 0.34; });
-    core.visible = coreVisibility > 0.01; ringGroup.visible = core.visible;
+    sculptureMaterial.opacity = coreVisibility;
+    core.visible = coreVisibility > 0.01;
     pc.visible = progress < 0.41;
     const privateVisibility = smooth(0.69, 0.96, progress);
     portalBack.material.opacity = privateVisibility * 0.86; portalFrame.material.opacity = privateVisibility * 0.76;
@@ -222,13 +211,13 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
       const p = cardPositions[i];
       p.set(Math.cos(angle) * radiusX, 0.8 + Math.sin(angle) * radiusY, 1.3 + Math.cos(angle * 2) * 0.22);
       const selected = i === active;
-      const bob = reducedMotion ? 0 : Math.sin(elapsed * 0.45 + i * 1.6) * 0.085;
+      const bob = reducedMotion ? 0 : Math.sin(elapsed * 0.2 + i * 1.6) * 0.018;
       cards[i].position.copy(p); cards[i].position.y += bob;
-      cards[i].scale.setScalar((mobile ? 0.69 : 1) * (selected ? 1.07 : 1));
+      cards[i].scale.setScalar((mobile ? 0.69 : 1) * (selected ? 1.025 : 1));
       cards[i].lookAt(camera.position); cards[i].visible = orbital > 0.025;
       cardMaterials[i].front.opacity = orbital * (active < 0 || selected ? 0.97 : 0.65);
-      cardMaterials[i].edge.opacity = orbital * (selected ? 1 : 0.46);
-      cardMaterials[i].halo.opacity = orbital * (selected ? 0.4 : 0.14);
+      cardMaterials[i].edge.opacity = orbital * (selected ? 0.45 : 0.12);
+      cardMaterials[i].halo.opacity = orbital * (selected ? 0.045 : 0);
     }
   }
   function draw() {
@@ -242,8 +231,7 @@ export async function createScene(canvas, { onSelect, reducedMotion = false, onU
       const delta = previousTime ? Math.min((time - previousTime) / 1000, 0.1) : 0;
       previousTime = time; lastFrame = time; elapsed += delta;
       smoothedPointer.lerp(pointer, 0.09);
-      core.rotation.y = elapsed * 0.035; core.rotation.z = Math.sin(elapsed * 0.11) * 0.045;
-      innerFrame.rotation.y = elapsed * -0.09; ringGroup.rotation.y = elapsed * 0.025;
+      core.rotation.y = elapsed * 0.018; core.rotation.z = -0.38 + Math.sin(elapsed * 0.07) * 0.025;
       particles.rotation.y = elapsed * 0.006;
       draw();
     }
